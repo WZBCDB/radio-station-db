@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎵 Radio Station Media Database</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px}
+.container{max-width:1400px;margin:0 auto}
+/* AUTH */
+.auth-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.auth-box{background:#fff;border-radius:12px;padding:40px;box-shadow:0 10px 40px rgba(0,0,0,.3);width:100%;max-width:420px}
+.auth-box h1{color:#667eea;margin-bottom:28px;text-align:center;font-size:1.9em}
+.fg{margin-bottom:18px}
+.fg label{display:block;margin-bottom:7px;color:#333;font-weight:600;font-size:.93em}
+.fg input,.fg select,.fg textarea{width:100%;padding:11px 13px;border:2px solid #e0e0e0;border-radius:6px;font-size:.94em;font-family:inherit;transition:border-color .25s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.1)}
+.fg textarea{resize:vertical;min-height:78px}
+.btn{width:100%;padding:12px;background:#667eea;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;transition:all .25s;font-size:1em}
+.btn:hover{background:#5568d3;transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,.4)}
+.auth-toggle{text-align:center;margin-top:18px;color:#666;font-size:.93em}
+.auth-toggle a{color:#667eea;cursor:pointer;font-weight:600;text-decoration:underline}
+.err{background:#fee2e2;color:#b91c1c;padding:11px 14px;border-radius:6px;margin-bottom:16px;display:none;border-left:4px solid #b91c1c;font-size:.92em}
+/* HEADER */
+header{display:flex;justify-content:space-between;align-items:center;color:#fff;margin-bottom:28px;flex-wrap:wrap;gap:16px}
+header h1{font-size:2.3em;text-shadow:2px 2px 4px rgba(0,0,0,.3)}
+.user-bar{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.user-bar .name{font-weight:700;font-size:1em}
+.user-bar .email{font-size:.82em;opacity:.9}
+.out-btn{background:rgba(255,255,255,.18);color:#fff;border:2px solid #fff;padding:9px 18px;border-radius:6px;cursor:pointer;font-weight:600;transition:all .25s;font-size:.9em}
+.out-btn:hover{background:rgba(255,255,255,.3)}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:28px}
+.stat{background:#fff;padding:18px;border-radius:12px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,.1)}
+.stat-n{font-size:2.4em;font-weight:700;color:#667eea}
+.stat-l{color:#666;font-size:.88em;margin-top:4px;font-weight:500}
+/* LAYOUT */
+.main-grid{display:grid;grid-template-columns:380px 1fr;gap:28px;margin-bottom:28px}
+/* FORM PANEL */
+.form-panel{background:#fff;border-radius:12px;padding:28px;box-shadow:0 10px 30px rgba(0,0,0,.25);height:fit-content;position:sticky;top:18px;max-height:88vh;overflow-y:auto}
+.form-panel h2{color:#667eea;margin-bottom:20px;font-size:1.4em}
+/* PHOTO UPLOAD */
+.photo-section{border:2px dashed #667eea;border-radius:8px;padding:18px;margin:18px 0;background:#f8f8ff}
+.photo-section h4{margin-bottom:6px;color:#333;font-size:.97em}
+.photo-section>p{font-size:.83em;color:#666;margin-bottom:14px}
+.photo-item-wrap{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid #ddd}
+.photo-item-wrap:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.type-row{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-bottom:8px}
+.type-row select,.type-row input{padding:8px;border:1px solid #ddd;border-radius:4px;font-size:.88em;font-family:inherit}
+.upload-lbl{display:block;padding:13px;background:#fff;border:2px dashed #667eea;border-radius:6px;text-align:center;cursor:pointer;font-size:.88em;color:#667eea;font-weight:500;transition:background .2s}
+.upload-lbl:hover{background:#f0f4ff}
+input[type=file]{display:none}
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-top:8px}
+.prev-item{position:relative}
+.prev-item img{width:100%;height:72px;object-fit:cover;border-radius:4px;border:2px solid #ddd}
+.prev-item .rm{position:absolute;top:-8px;right:-8px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:.85em;display:flex;align-items:center;justify-content:center;padding:0}
+/* GENRE TAGS */
+.genre-tags{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 14px}
+.gtag{background:#667eea;color:#fff;padding:5px 11px;border-radius:20px;font-size:.83em;display:flex;align-items:center;gap:5px}
+.gtag .rm{cursor:pointer;font-weight:700;opacity:.8}
+.gtag .rm:hover{opacity:1}
+/* BUTTON ROW */
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:26px}
+.btn-save{background:#667eea;color:#fff;grid-column:1/-1;padding:12px;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:1em;transition:all .25s}
+.btn-save:hover{background:#5568d3;transform:translateY(-2px)}
+.btn-clear{background:#f0f0f0;color:#333;padding:12px;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:.95em;transition:all .2s}
+.btn-clear:hover{background:#e0e0e0}
+.btn-add-photo{width:100%;margin-top:13px;background:#f0f0f0;color:#333;padding:10px;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:.9em}
+.btn-add-photo:hover{background:#e0e0e0}
+/* SEARCH */
+.search-bar{background:#fff;border-radius:12px;padding:18px;margin-bottom:24px;box-shadow:0 5px 15px rgba(0,0,0,.1)}
+.search-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:13px}
+.search-grid input,.search-grid select{padding:10px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:.94em;font-family:inherit;transition:border-color .2s}
+.search-grid input:focus,.search-grid select:focus{outline:none;border-color:#667eea}
+/* CARD GRID */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,.1);transition:all .25s;cursor:pointer}
+.card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,.2)}
+.card-img{width:100%;height:230px;object-fit:cover}
+.card-img-placeholder{width:100%;height:230px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;font-size:3.5em}
+.card-body{padding:18px}
+.card-type{display:inline-block;background:#764ba2;color:#fff;padding:3px 11px;border-radius:20px;font-size:.7em;font-weight:700;margin-bottom:9px;text-transform:uppercase;letter-spacing:.4px}
+.card-title{font-size:1.05em;font-weight:700;color:#222;margin-bottom:4px;line-height:1.3}
+.card-artist{color:#555;font-size:.92em;margin-bottom:6px}
+.card-label{color:#999;font-size:.83em;margin-bottom:9px}
+.card-genres{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:13px}
+.gbadge{background:#e8eef8;color:#667eea;padding:2px 8px;border-radius:10px;font-size:.73em;font-weight:600}
+.card-actions{display:flex;gap:8px}
+.btn-edit,.btn-del{flex:1;padding:8px;font-size:.83em;border:none;border-radius:4px;cursor:pointer;font-weight:600;transition:all .2s}
+.btn-edit{background:#667eea;color:#fff}
+.btn-edit:hover{background:#5568d3}
+.btn-del{background:#ef4444;color:#fff}
+.btn-del:hover{background:#dc2626}
+/* MODAL */
+.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.6);align-items:center;justify-content:center}
+.modal.open{display:flex}
+.modal-inner{background:#fff;padding:28px;border-radius:12px;max-width:680px;width:92%;max-height:82vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-size:1.35em;font-weight:700;color:#222}
+.close-btn{background:none;border:none;font-size:1.4em;cursor:pointer;color:#999;padding:0;line-height:1}
+.close-btn:hover{color:#333}
+.modal-inner p{margin-bottom:9px;color:#333;font-size:.94em}
+.modal-inner strong{color:#222}
+.loc-note{background:#f5f5f5;padding:13px;border-left:4px solid #667eea;border-radius:4px;margin:14px 0;font-size:.9em}
+.photo-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:13px;margin-top:16px}
+.gal-item{position:relative;border-radius:8px;overflow:hidden}
+.gal-item img{width:100%;height:150px;object-fit:cover;display:block}
+.gal-label{background:rgba(0,0,0,.68);color:#fff;padding:5px 9px;font-size:.72em;text-align:center;text-transform:uppercase;font-weight:600;position:absolute;bottom:0;width:100%}
+/* EMPTY */
+.empty{text-align:center;padding:55px 20px;color:#999;font-size:1em}
+/* RESPONSIVE */
+@media(max-width:1100px){.main-grid{grid-template-columns:1fr}.form-panel{position:static;max-height:none}header h1{font-size:1.8em}}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}.card-grid{grid-template-columns:1fr}.search-grid{grid-template-columns:1fr}.btn-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ═══ AUTH PAGE ═══ -->
+<div id="authPage" class="auth-wrap">
+  <div class="auth-box">
+    <h1>🎵 Radio Station DB</h1>
+
+    <!-- Register -->
+    <form id="regForm">
+      <div class="err" id="regErr"></div>
+      <div class="fg"><label>Station Name</label>
+        <input type="text" id="regStation" required placeholder="e.g. WKRP College Radio"></div>
+      <div class="fg"><label>Email</label>
+        <input type="email" id="regEmail" required placeholder="you@university.edu"></div>
+      <div class="fg"><label>Password</label>
+        <input type="password" id="regPass" required placeholder="min 6 characters"></div>
+      <div class="fg"><label>Confirm Password</label>
+        <input type="password" id="regConfirm" required placeholder="••••••••"></div>
+      <button type="submit" class="btn">Create Account</button>
+      <div class="auth-toggle">Already have an account? <a onclick="toggleAuth()">Sign In</a></div>
+    </form>
+
+    <!-- Login -->
+    <form id="logForm" style="display:none">
+      <div class="err" id="logErr"></div>
+      <div class="fg"><label>Email</label>
+        <input type="email" id="logEmail" required placeholder="you@university.edu"></div>
+      <div class="fg"><label>Password</label>
+        <input type="password" id="logPass" required placeholder="••••••••"></div>
+      <button type="submit" class="btn">Sign In</button>
+      <div class="auth-toggle">Need an account? <a onclick="toggleAuth()">Register</a></div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="mainApp" style="display:none">
+  <div class="container">
+
+    <header>
+      <h1>🎵 Radio Station Media Database</h1>
+      <div class="user-bar">
+        <div>
+          <div class="name" id="hStation"></div>
+          <div class="email" id="hEmail"></div>
+        </div>
+        <button class="out-btn" onclick="logout()">Logout</button>
+      </div>
+    </header>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="sTotal">0</div><div class="stat-l">Total Items</div></div>
+      <div class="stat"><div class="stat-n" id="sVinyl">0</div><div class="stat-l">Vinyl Records</div></div>
+      <div class="stat"><div class="stat-n" id="s45">0</div><div class="stat-l">45 RPM</div></div>
+      <div class="stat"><div class="stat-n" id="sCD">0</div><div class="stat-l">CDs</div></div>
+    </div>
+
+    <div class="main-grid">
+
+      <!-- ── FORM PANEL ── -->
+      <div class="form-panel">
+        <h2 id="formTitle">➕ Add New Item</h2>
+        <form id="mediaForm">
+
+          <div class="fg"><label>Media Type *</label>
+            <select id="fType" required>
+              <option value="">Select type…</option>
+              <option value="vinyl">Vinyl Record</option>
+              <option value="45">45 RPM Single</option>
+              <option value="cd">CD</option>
+            </select></div>
+
+          <div class="fg"><label>Title *</label>
+            <input type="text" id="fTitle" required placeholder="Album / single title"></div>
+
+          <div class="fg"><label>Artist *</label>
+            <input type="text" id="fArtist" required placeholder="Artist or band name"></div>
+
+          <div class="fg"><label>Record Label</label>
+            <input type="text" id="fLabel" placeholder="e.g. Atlantic, Blue Note"></div>
+
+          <div class="fg"><label>Release Year</label>
+            <input type="number" id="fYear" placeholder="e.g. 1975" min="1900" max="2099"></div>
+
+          <div class="fg"><label>Genres <small style="font-weight:400">(type &amp; press Enter)</small></label>
+            <input type="text" id="fGenreInput" placeholder="e.g. Jazz, Soul, Rock…">
+            <div class="genre-tags" id="genreTags"></div>
+          </div>
+
+          <div class="fg"><label>📍 Library Location</label>
+            <input type="text" id="fLocation" placeholder="e.g. Shelf B-4 · Bin 12"></div>
+
+          <div class="fg"><label>Condition</label>
+            <select id="fCondition">
+              <option value="">Select condition…</option>
+              <option value="mint">Mint (Sealed)</option>
+              <option value="near-mint">Near Mint</option>
+              <option value="excellent">Excellent</option>
+              <option value="good">Good</option>
+              <option value="fair">Fair</option>
+              <option value="poor">Poor</option>
+            </select></div>
+
+          <div class="fg"><label>Notes / Comments</label>
+            <textarea id="fNotes" placeholder="Scratches? Missing sleeve? Any observations…"></textarea></div>
+
+          <!-- PHOTO UPLOAD -->
+          <div class="photo-section">
+            <h4>📸 Photos</h4>
+            <p>Upload cover art, condition photos, and library tag images. Add as many slots as you need.</p>
+            <div id="photoSlots">
+              <!-- Slot 0 injected by JS -->
+            </div>
+            <button type="button" class="btn-add-photo" id="addSlotBtn">+ Add Another Photo Slot</button>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn-clear" id="clearBtn">Clear Form</button>
+            <button type="submit" class="btn-save">💾 Save Item</button>
+          </div>
+
+        </form>
+      </div><!-- /form-panel -->
+
+      <!-- ── BROWSE PANEL ── -->
+      <div>
+        <div class="search-bar">
+          <div class="search-grid">
+            <input type="text"  id="sSearch"  placeholder="🔍 Search title or artist…">
+            <select id="sType">
+              <option value="">All Types</option>
+              <option value="vinyl">Vinyl</option>
+              <option value="45">45 RPM</option>
+              <option value="cd">CD</option>
+            </select>
+            <select id="sGenre"><option value="">All Genres</option></select>
+          </div>
+        </div>
+
+        <div id="cardGrid" class="card-grid">
+          <div class="empty">No items yet — add your first record! 🎶</div>
+        </div>
+      </div>
+
+    </div><!-- /main-grid -->
+  </div><!-- /container -->
+</div><!-- /mainApp -->
+
+<!-- ═══ DETAIL MODAL ═══ -->
+<div id="modal" class="modal">
+  <div class="modal-inner">
+    <div class="modal-head">
+      <span>📋 Item Details</span>
+      <button class="close-btn" onclick="closeModal()">×</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const API   = window.location.origin;
+let token   = localStorage.getItem('rdb_token');
+let me      = JSON.parse(localStorage.getItem('rdb_user') || 'null');
+let db      = [];
+let genres  = new Set();
+let editing = null;
+let slotIdx = 0;
+let newPhotos = [];   // {file, type, desc, preview}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+(token && me) ? bootApp() : bootAuth();
+
+function bootAuth() {
+  document.getElementById('authPage').style.display = 'flex';
+  document.getElementById('mainApp').style.display  = 'none';
+  addSlot(); // pre-create first photo slot
+}
+
+function bootApp() {
+  document.getElementById('authPage').style.display = 'none';
+  document.getElementById('mainApp').style.display  = 'block';
+  document.getElementById('hStation').textContent   = me.stationName;
+  document.getElementById('hEmail').textContent     = me.email;
+  addSlot();
+  loadAll();
+}
+
+// ─── AUTH FORMS ───────────────────────────────────────────────────────────────
+function toggleAuth() {
+  ['regForm','logForm'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  });
+  document.getElementById('regErr').style.display = 'none';
+  document.getElementById('logErr').style.display = 'none';
+}
+
+document.getElementById('regForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const station = document.getElementById('regStation').value.trim();
+  const email   = document.getElementById('regEmail').value.trim();
+  const pass    = document.getElementById('regPass').value;
+  const confirm = document.getElementById('regConfirm').value;
+
+  if (pass !== confirm) return showErr('regErr', 'Passwords do not match');
+  if (pass.length < 6)  return showErr('regErr', 'Password needs at least 6 characters');
+
+  try {
+    const r = await post('/api/auth/register', { email, password: pass, stationName: station });
+    saveSession(r);
+    bootApp();
+  } catch(err) { showErr('regErr', err.message); }
+});
+
+document.getElementById('logForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = document.getElementById('logEmail').value.trim();
+  const pass  = document.getElementById('logPass').value;
+  try {
+    const r = await post('/api/auth/login', { email, password: pass });
+    saveSession(r);
+    bootApp();
+  } catch(err) { showErr('logErr', err.message); }
+});
+
+function saveSession(data) {
+  token = data.token; me = data.user;
+  localStorage.setItem('rdb_token', token);
+  localStorage.setItem('rdb_user',  JSON.stringify(me));
+}
+
+function logout() {
+  if (!confirm('Log out?')) return;
+  localStorage.removeItem('rdb_token');
+  localStorage.removeItem('rdb_user');
+  token = null; me = null;
+  location.reload();
+}
+
+// ─── PHOTO SLOTS ─────────────────────────────────────────────────────────────
+function addSlot() {
+  const idx = slotIdx++;
+  const container = document.getElementById('photoSlots');
+  const wrap = document.createElement('div');
+  wrap.className = 'photo-item-wrap';
+  wrap.id = `slot-${idx}`;
+  wrap.innerHTML = `
+    <div class="type-row">
+      <select id="ptype-${idx}">
+        <option value="cover">Cover Art</option>
+        <option value="condition">Condition</option>
+        <option value="tag">Library Tag</option>
+      </select>
+      <input type="text" id="pdesc-${idx}" placeholder="Optional description">
+    </div>
+    <label for="pfile-${idx}" class="upload-lbl">📤 Click to choose photo</label>
+    <input type="file" id="pfile-${idx}" accept="image/*" multiple>
+    <div class="preview-grid" id="prev-${idx}"></div>
+    ${idx > 0 ? `<button type="button" style="margin-top:8px;width:100%;background:#f0f0f0;color:#333;padding:7px;border:none;border-radius:4px;cursor:pointer;font-size:.85em" onclick="removeSlot(${idx})">Remove Slot</button>` : ''}
+  `;
+  container.appendChild(wrap);
+  document.getElementById(`pfile-${idx}`).addEventListener('change', e => handleFiles(e, idx));
+}
+
+document.getElementById('addSlotBtn').addEventListener('click', addSlot);
+
+function removeSlot(idx) {
+  document.getElementById(`slot-${idx}`)?.remove();
+}
+
+function handleFiles(e, idx) {
+  const ptype = document.getElementById(`ptype-${idx}`).value;
+  const pdesc = document.getElementById(`pdesc-${idx}`).value;
+  const prev  = document.getElementById(`prev-${idx}`);
+  prev.innerHTML = '';
+
+  Array.from(e.target.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const photoIdx = newPhotos.length;
+      newPhotos.push({ file, type: ptype, desc: pdesc, preview: ev.target.result });
+      const d = document.createElement('div');
+      d.className = 'prev-item';
+      d.innerHTML = `<img src="${ev.target.result}" alt="preview"><button type="button" class="rm" onclick="removePhoto(${photoIdx})">×</button>`;
+      prev.appendChild(d);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removePhoto(idx) { newPhotos.splice(idx, 1); }
+
+// ─── GENRE TAGS ───────────────────────────────────────────────────────────────
+document.getElementById('fGenreInput').addEventListener('keypress', e => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const v = e.target.value.trim();
+  if (!v) return;
+  genres.add(v);
+  renderGenres();
+  e.target.value = '';
+});
+
+function renderGenres() {
+  const c = document.getElementById('genreTags');
+  c.innerHTML = '';
+  genres.forEach(g => {
+    const s = document.createElement('span');
+    s.className = 'gtag';
+    s.innerHTML = `${g} <span class="rm" onclick="removeGenre('${g}')">×</span>`;
+    c.appendChild(s);
+  });
+}
+
+function removeGenre(g) { genres.delete(g); renderGenres(); }
+
+// ─── FORM SAVE ────────────────────────────────────────────────────────────────
+document.getElementById('mediaForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const body = {
+    mediaType: document.getElementById('fType').value,
+    title:     document.getElementById('fTitle').value.trim(),
+    artist:    document.getElementById('fArtist').value.trim(),
+    label:     document.getElementById('fLabel').value.trim(),
+    year:      document.getElementById('fYear').value,
+    location:  document.getElementById('fLocation').value.trim(),
+    condition: document.getElementById('fCondition').value,
+    notes:     document.getElementById('fNotes').value.trim(),
+  };
+
+  if (!body.mediaType || !body.title || !body.artist)
+    return alert('Please fill in Type, Title, and Artist.');
+
+  const fd = new FormData();
+  Object.entries(body).forEach(([k,v]) => fd.append(k, v));
+  fd.append('genres', JSON.stringify([...genres]));
+
+  // Re-read types/descs from DOM at save time
+  newPhotos.forEach((p, i) => {
+    fd.append('photos', p.file);
+    fd.append(`photoDescription_${i}`, p.desc || '');
+  });
+  fd.append('photoTypes', JSON.stringify(newPhotos.map(p => p.type)));
+
+  try {
+    const method = editing ? 'PUT' : 'POST';
+    const url    = editing ? `${API}/api/media/${editing}` : `${API}/api/media`;
+    const res    = await fetch(url, { method, headers: { Authorization: `Bearer ${token}` }, body: fd });
+    if (!res.ok) throw new Error((await res.json()).message);
+    clearForm();
+    await loadAll();
+  } catch(err) { alert('Save failed: ' + err.message); }
+});
+
+document.getElementById('clearBtn').addEventListener('click', clearForm);
+
+function clearForm() {
+  document.getElementById('mediaForm').reset();
+  genres.clear(); renderGenres();
+  newPhotos = [];
+  editing = null;
+  slotIdx = 0;
+  document.getElementById('photoSlots').innerHTML = '';
+  addSlot();
+  document.getElementById('formTitle').textContent = '➕ Add New Item';
+}
+
+// ─── LOAD & RENDER ────────────────────────────────────────────────────────────
+async function loadAll() {
+  try {
+    const [media, stats] = await Promise.all([
+      authGet('/api/media'),
+      authGet('/api/stats'),
+    ]);
+    db = media;
+    document.getElementById('sTotal').textContent = stats.total;
+    document.getElementById('sVinyl').textContent = stats.byType?.vinyl || 0;
+    document.getElementById('s45').textContent    = stats.byType?.['45'] || 0;
+    document.getElementById('sCD').textContent    = stats.byType?.cd    || 0;
+    buildGenreFilter();
+    renderCards();
+  } catch(err) { console.error('Load error:', err); }
+}
+
+function buildGenreFilter() {
+  const all = new Set();
+  db.forEach(item => item.genres?.forEach(g => all.add(g)));
+  const sel = document.getElementById('sGenre');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All Genres</option>';
+  [...all].sort().forEach(g => {
+    const o = document.createElement('option');
+    o.value = o.textContent = g;
+    sel.appendChild(o);
+  });
+  sel.value = cur;
+}
+
+function renderCards() {
+  const grid    = document.getElementById('cardGrid');
+  const search  = document.getElementById('sSearch').value.toLowerCase();
+  const typeF   = document.getElementById('sType').value;
+  const genreF  = document.getElementById('sGenre').value;
+
+  const filtered = db.filter(item => {
+    const matchS = item.title.toLowerCase().includes(search) || item.artist.toLowerCase().includes(search);
+    const matchT = !typeF  || item.mediaType === typeF;
+    const matchG = !genreF || item.genres.includes(genreF);
+    return matchS && matchT && matchG;
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty">No items match your search.</div>';
+    return;
+  }
+
+  const typeLabel = { vinyl:'💿 Vinyl', '45':'🎵 45 RPM', cd:'💽 CD' };
+  grid.innerHTML = filtered.map(item => {
+    const cover = item.photos?.find(p => p.type === 'cover');
+    const img   = cover
+      ? `<img class="card-img" src="${cover.url}" alt="${item.title}">`
+      : `<div class="card-img-placeholder">🎵</div>`;
+    const gbadges = (item.genres || []).map(g => `<span class="gbadge">${g}</span>`).join('');
+    return `
+      <div class="card" onclick="openModal('${item._id}')">
+        ${img}
+        <div class="card-body">
+          <div class="card-type">${typeLabel[item.mediaType] || item.mediaType}</div>
+          <div class="card-title">${item.title}</div>
+          <div class="card-artist">${item.artist}</div>
+          ${item.label ? `<div class="card-label">${item.label}</div>` : ''}
+          <div class="card-genres">${gbadges}</div>
+          <div class="card-actions">
+            <button class="btn-edit" onclick="editItem(event,'${item._id}')">✏️ Edit</button>
+            <button class="btn-del"  onclick="deleteItem(event,'${item._id}')">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ─── SEARCH LISTENERS ────────────────────────────────────────────────────────
+['sSearch','sType','sGenre'].forEach(id =>
+  document.getElementById(id).addEventListener('input', renderCards)
+);
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(id) {
+  const item = db.find(i => i._id === id);
+  if (!item) return;
+  const typeLabel = { vinyl:'💿 Vinyl Record', '45':'🎵 45 RPM', cd:'💽 CD' };
+  const photos = (item.photos || []).map(p => `
+    <div class="gal-item">
+      <img src="${p.url}" alt="${p.type}">
+      <div class="gal-label">${p.type}${p.description ? ' — '+p.description : ''}</div>
+    </div>`).join('');
+
+  document.getElementById('modalBody').innerHTML = `
+    <p><strong>Type:</strong> ${typeLabel[item.mediaType] || item.mediaType}</p>
+    <p><strong>Title:</strong> ${item.title}</p>
+    <p><strong>Artist:</strong> ${item.artist}</p>
+    ${item.label    ? `<p><strong>Label:</strong> ${item.label}</p>` : ''}
+    ${item.year     ? `<p><strong>Year:</strong> ${item.year}</p>` : ''}
+    ${item.condition? `<p><strong>Condition:</strong> ${item.condition}</p>` : ''}
+    ${item.genres?.length ? `<p><strong>Genres:</strong> ${item.genres.join(', ')}</p>` : ''}
+    ${item.location ? `<div class="loc-note">📍 <strong>Location:</strong> ${item.location}</div>` : ''}
+    ${item.notes    ? `<p><strong>Notes:</strong> ${item.notes}</p>` : ''}
+    ${photos.length ? `<h3 style="margin-top:18px;margin-bottom:12px;color:#333">📷 Photos</h3><div class="photo-gallery">${photos}</div>` : ''}
+    <p style="color:#bbb;font-size:.82em;margin-top:20px;border-top:1px solid #eee;padding-top:14px">
+      Added ${new Date(item.dateAdded).toLocaleDateString()}
+    </p>`;
+
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+
+// ─── EDIT & DELETE ────────────────────────────────────────────────────────────
+function editItem(e, id) {
+  e.stopPropagation();
+  const item = db.find(i => i._id === id);
+  if (!item) return;
+
+  document.getElementById('fType').value      = item.mediaType;
+  document.getElementById('fTitle').value     = item.title;
+  document.getElementById('fArtist').value    = item.artist;
+  document.getElementById('fLabel').value     = item.label  || '';
+  document.getElementById('fYear').value      = item.year   || '';
+  document.getElementById('fLocation').value  = item.location || '';
+  document.getElementById('fCondition').value = item.condition || '';
+  document.getElementById('fNotes').value     = item.notes  || '';
+
+  genres = new Set(item.genres || []);
+  renderGenres();
+  editing = id;
+  newPhotos = [];
+  document.getElementById('formTitle').textContent = '✏️ Edit Item';
+  document.querySelector('.form-panel').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function deleteItem(e, id) {
+  e.stopPropagation();
+  if (!confirm('Delete this item permanently?')) return;
+  try {
+    const r = await fetch(`${API}/api/media/${id}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!r.ok) throw new Error((await r.json()).message);
+    await loadAll();
+  } catch(err) { alert('Delete failed: ' + err.message); }
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+async function post(path, data) {
+  const r = await fetch(API + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.message);
+  return j;
+}
+
+async function authGet(path) {
+  const r = await fetch(API + path, { headers: { Authorization: `Bearer ${token}` } });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.message);
+  return j;
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+</script>
+</body>
+</html>
+```
+
+---
+
+That's all 5 files. Here's a recap of exactly what to do:
+
+**Step 1 — Create this folder structure on your computer:**
+```
+radio-station-db/
+├── package.json          ← paste File 1
+├── .gitignore            ← paste File 2
+├── .env.example          ← paste File 3
+├── server.js             ← paste File 4
+└── public/
+    └── index.html        ← paste File 5

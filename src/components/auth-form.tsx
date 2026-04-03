@@ -60,10 +60,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   return (
     <div className="flex items-center justify-center min-h-screen p-5">
-      <div className="bg-white rounded-xl p-10 shadow-2xl w-full max-w-md">
-        <h1 className="text-indigo-500 text-3xl font-bold text-center mb-7">
-          Radio Station DB
+      <div className="glass-bright rounded-xl p-10 w-full max-w-md">
+        <h1 className="text-white text-3xl font-bold text-center mb-2">
+          WZBC
         </h1>
+        <p className="text-bc-gold text-sm font-semibold text-center mb-7 tracking-wide uppercase">
+          Media Database
+        </p>
 
         {error && (
           <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4 border-l-4 border-red-700 text-sm">
@@ -74,7 +77,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         <form onSubmit={handleSubmit}>
           {mode === "register" && (
             <div className="mb-4">
-              <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+              <label className="block mb-1.5 text-sm font-semibold text-white/80">
                 Display Name
               </label>
               <input
@@ -83,13 +86,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Your name"
-                className="w-full p-2.5 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 text-sm"
+                className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md focus:outline-none focus:border-bc-gold text-sm text-gray-900"
               />
             </div>
           )}
 
           <div className="mb-4">
-            <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+            <label className="block mb-1.5 text-sm font-semibold text-white/80">
               Email
             </label>
             <input
@@ -97,13 +100,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@university.edu"
-              className="w-full p-2.5 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 text-sm"
+              placeholder="you@bc.edu"
+              className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md focus:outline-none focus:border-bc-gold text-sm text-gray-900"
             />
           </div>
 
           <div className="mb-4">
-            <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+            <label className="block mb-1.5 text-sm font-semibold text-white/80">
               Password
             </label>
             <input
@@ -112,13 +115,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Min 6 characters"
-              className="w-full p-2.5 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 text-sm"
+              className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md focus:outline-none focus:border-bc-gold text-sm text-gray-900"
             />
           </div>
 
           {mode === "register" && (
             <div className="mb-4">
-              <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+              <label className="block mb-1.5 text-sm font-semibold text-white/80">
                 Confirm Password
               </label>
               <input
@@ -127,7 +130,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Repeat password"
-                className="w-full p-2.5 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 text-sm"
+                className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md focus:outline-none focus:border-bc-gold text-sm text-gray-900"
               />
             </div>
           )}
@@ -135,7 +138,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full p-3 bg-indigo-500 text-white rounded-md font-semibold hover:bg-indigo-600 transition disabled:opacity-50"
+            className="w-full p-3 bg-bc-maroon text-white rounded-md font-semibold hover:bg-bc-maroon-dark transition disabled:opacity-50"
           >
             {loading
               ? "Please wait..."
@@ -145,18 +148,18 @@ export default function AuthForm({ mode }: AuthFormProps) {
           </button>
         </form>
 
-        <p className="text-center mt-5 text-sm text-gray-500">
+        <p className="text-center mt-5 text-sm text-white/60">
           {mode === "register" ? (
             <>
               Already have an account?{" "}
-              <Link href="/login" className="text-indigo-500 font-semibold">
+              <Link href="/login" className="text-bc-gold font-semibold">
                 Sign In
               </Link>
             </>
           ) : (
             <>
               Need an account?{" "}
-              <Link href="/register" className="text-indigo-500 font-semibold">
+              <Link href="/register" className="text-bc-gold font-semibold">
                 Register
               </Link>
             </>

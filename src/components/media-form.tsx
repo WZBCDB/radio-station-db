@@ -158,20 +158,20 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
 
   return (
     <>
-      <h2 className="text-indigo-500 text-xl font-bold mb-5">
+      <h2 className="text-bc-gold text-xl font-bold mb-5">
         {editing ? "Edit Item" : "Add New Item"}
       </h2>
 
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+          <label className="block mb-1.5 text-sm font-semibold text-white/80">
             Media Type *
           </label>
           <select
             required
             value={mediaType}
             onChange={(e) => setMediaType(e.target.value as MediaType)}
-            className="w-full p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+            className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
           >
             <option value="">Select type...</option>
             <option value="vinyl">Vinyl Record</option>
@@ -181,7 +181,7 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+          <label className="block mb-1.5 text-sm font-semibold text-white/80">
             Title *
           </label>
           <input
@@ -190,12 +190,12 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Album / single title"
-            className="w-full p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+            className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+          <label className="block mb-1.5 text-sm font-semibold text-white/80">
             Artist *
           </label>
           <input
@@ -204,12 +204,12 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
             value={artist}
             onChange={(e) => setArtist(e.target.value)}
             placeholder="Artist or band name"
-            className="w-full p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+            className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+          <label className="block mb-1.5 text-sm font-semibold text-white/80">
             Record Label
           </label>
           <input
@@ -217,12 +217,12 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             placeholder="e.g. Atlantic, Blue Note"
-            className="w-full p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+            className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+          <label className="block mb-1.5 text-sm font-semibold text-white/80">
             Release Year
           </label>
           <input
@@ -232,12 +232,12 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
             placeholder="e.g. 1975"
             min="1900"
             max="2099"
-            className="w-full p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+            className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+          <label className="block mb-1.5 text-sm font-semibold text-white/80">
             Genres{" "}
             <span className="font-normal text-xs">(type & press Enter)</span>
           </label>
@@ -247,14 +247,14 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
             onChange={(e) => setGenreInput(e.target.value)}
             onKeyDown={addGenre}
             placeholder="e.g. Jazz, Soul, Rock..."
-            className="w-full p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+            className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
           />
           {genres.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {genres.map((g) => (
                 <span
                   key={g}
-                  className="bg-indigo-500 text-white px-3 py-1 rounded-full text-xs flex items-center gap-1"
+                  className="bg-bc-gold text-white px-3 py-1 rounded-full text-xs flex items-center gap-1"
                 >
                   {g}
                   <span
@@ -270,7 +270,7 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+          <label className="block mb-1.5 text-sm font-semibold text-white/80">
             Library Location
           </label>
           <input
@@ -278,18 +278,18 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="e.g. Shelf B-4, Bin 12"
-            className="w-full p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+            className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+          <label className="block mb-1.5 text-sm font-semibold text-white/80">
             Condition
           </label>
           <select
             value={condition}
             onChange={(e) => setCondition(e.target.value as Condition)}
-            className="w-full p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+            className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
           >
             <option value="">Select condition...</option>
             <option value="mint">Mint (Sealed)</option>
@@ -302,14 +302,14 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1.5 text-sm font-semibold text-gray-700">
+          <label className="block mb-1.5 text-sm font-semibold text-white/80">
             Notes / Comments
           </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Scratches? Missing sleeve? Any observations..."
-            className="w-full p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500 min-h-[78px] resize-y"
+            className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold min-h-[78px] resize-y"
           />
         </div>
 
@@ -319,14 +319,14 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
           <button
             type="button"
             onClick={clearForm}
-            className="bg-gray-100 text-gray-600 py-3 rounded-md font-semibold text-sm hover:bg-gray-200 transition"
+            className="bg-white/15 text-white/80 py-3 rounded-md font-semibold text-sm hover:bg-white/25 transition"
           >
             Clear Form
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="bg-indigo-500 text-white py-3 rounded-md font-bold text-sm hover:bg-indigo-600 transition disabled:opacity-50"
+            className="bg-bc-gold text-white py-3 rounded-md font-bold text-sm hover:bg-bc-gold-light transition disabled:opacity-50"
           >
             {saving ? "Saving..." : "Save Item"}
           </button>

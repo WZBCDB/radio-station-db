@@ -21,61 +21,61 @@ export default function DetailModal({ item, onClose }: DetailModalProps) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white p-7 rounded-xl max-w-2xl w-full max-h-[82vh] overflow-y-auto shadow-2xl"
+        className="glass-bright p-7 rounded-xl max-w-2xl w-full max-h-[82vh] overflow-y-auto"
       >
         <div className="flex justify-between items-center mb-5">
-          <span className="text-xl font-bold text-gray-800">Item Details</span>
+          <span className="text-xl font-bold text-white">Item Details</span>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-700 text-2xl leading-none"
+            className="text-white/40 hover:text-white text-2xl leading-none"
           >
             &times;
           </button>
         </div>
 
-        <p className="mb-2 text-sm">
+        <p className="mb-2 text-sm text-white/80">
           <strong>Type:</strong> {TYPE_LABELS[item.media_type] ?? item.media_type}
         </p>
-        <p className="mb-2 text-sm">
+        <p className="mb-2 text-sm text-white/80">
           <strong>Title:</strong> {item.title}
         </p>
-        <p className="mb-2 text-sm">
+        <p className="mb-2 text-sm text-white/80">
           <strong>Artist:</strong> {item.artist}
         </p>
         {item.label && (
-          <p className="mb-2 text-sm">
+          <p className="mb-2 text-sm text-white/80">
             <strong>Label:</strong> {item.label}
           </p>
         )}
         {item.year && (
-          <p className="mb-2 text-sm">
+          <p className="mb-2 text-sm text-white/80">
             <strong>Year:</strong> {item.year}
           </p>
         )}
         {item.condition && (
-          <p className="mb-2 text-sm">
+          <p className="mb-2 text-sm text-white/80">
             <strong>Condition:</strong> {item.condition}
           </p>
         )}
         {item.genres.length > 0 && (
-          <p className="mb-2 text-sm">
+          <p className="mb-2 text-sm text-white/80">
             <strong>Genres:</strong> {item.genres.join(", ")}
           </p>
         )}
         {item.location && (
-          <div className="bg-gray-100 p-3 border-l-4 border-indigo-500 rounded my-3 text-sm">
+          <div className="bg-white/10 p-3 border-l-4 border-bc-gold rounded my-3 text-sm text-white/80">
             <strong>Location:</strong> {item.location}
           </div>
         )}
         {item.notes && (
-          <p className="mb-2 text-sm">
+          <p className="mb-2 text-sm text-white/80">
             <strong>Notes:</strong> {item.notes}
           </p>
         )}
 
         {item.photos?.length > 0 && (
           <>
-            <h3 className="text-base font-bold text-gray-700 mt-5 mb-3">
+            <h3 className="text-base font-bold text-white mt-5 mb-3">
               Photos
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -96,7 +96,7 @@ export default function DetailModal({ item, onClose }: DetailModalProps) {
           </>
         )}
 
-        <p className="text-gray-400 text-xs mt-5 pt-3 border-t border-gray-200">
+        <p className="text-white/40 text-xs mt-5 pt-3 border-t border-white/10">
           Added {new Date(item.date_added).toLocaleDateString()}
         </p>
       </div>

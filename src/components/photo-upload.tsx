@@ -52,9 +52,9 @@ export default function PhotoUpload({ photos, onChange }: PhotoUploadProps) {
   }
 
   return (
-    <div className="border-2 border-dashed border-indigo-500 rounded-lg p-4 my-4 bg-indigo-50/30">
-      <h4 className="font-semibold text-sm text-gray-700 mb-1">Photos</h4>
-      <p className="text-xs text-gray-500 mb-3">
+    <div className="border-2 border-dashed border-bc-gold/50 rounded-lg p-4 my-4 bg-white/5">
+      <h4 className="font-semibold text-sm text-white/80 mb-1">Photos</h4>
+      <p className="text-xs text-white/50 mb-3">
         Upload cover art, condition photos, and library tag images.
       </p>
 
@@ -71,7 +71,7 @@ export default function PhotoUpload({ photos, onChange }: PhotoUploadProps) {
                 updated[idx].type = e.target.value as PhotoType;
                 setSlots(updated);
               }}
-              className="p-2 border border-gray-300 rounded text-sm"
+              className="p-2 bg-white/90 border border-white/30 rounded text-sm text-gray-900"
             >
               <option value="cover">Cover Art</option>
               <option value="condition">Condition</option>
@@ -86,10 +86,10 @@ export default function PhotoUpload({ photos, onChange }: PhotoUploadProps) {
                 updated[idx].description = e.target.value;
                 setSlots(updated);
               }}
-              className="p-2 border border-gray-300 rounded text-sm"
+              className="p-2 bg-white/90 border border-white/30 rounded text-sm text-gray-900"
             />
           </div>
-          <label className="block p-3 bg-white border-2 border-dashed border-indigo-500 rounded-md text-center cursor-pointer text-sm text-indigo-500 font-medium hover:bg-indigo-50 transition">
+          <label className="block p-3 bg-white/10 border-2 border-dashed border-bc-gold/50 rounded-md text-center cursor-pointer text-sm text-bc-gold font-medium hover:bg-white/20 transition">
             Click to choose photo
             <input
               type="file"
@@ -103,7 +103,7 @@ export default function PhotoUpload({ photos, onChange }: PhotoUploadProps) {
             <button
               type="button"
               onClick={() => removeSlot(idx)}
-              className="w-full mt-2 bg-gray-100 text-gray-600 py-1.5 rounded text-xs hover:bg-gray-200"
+              className="w-full mt-2 bg-white/10 text-white/60 py-1.5 rounded text-xs hover:bg-white/20"
             >
               Remove Slot
             </button>
@@ -114,7 +114,7 @@ export default function PhotoUpload({ photos, onChange }: PhotoUploadProps) {
       <button
         type="button"
         onClick={addSlot}
-        className="w-full mt-3 bg-gray-100 text-gray-600 py-2.5 rounded-md font-semibold text-sm hover:bg-gray-200"
+        className="w-full mt-3 bg-white/10 text-white/70 py-2.5 rounded-md font-semibold text-sm hover:bg-white/20"
       >
         + Add Another Photo Slot
       </button>
@@ -126,7 +126,7 @@ export default function PhotoUpload({ photos, onChange }: PhotoUploadProps) {
               <img
                 src={p.preview}
                 alt="preview"
-                className="w-full h-[72px] object-cover rounded border-2 border-gray-200"
+                className="w-full h-[72px] object-cover rounded border-2 border-white/30"
               />
               <button
                 type="button"

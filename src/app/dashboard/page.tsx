@@ -98,7 +98,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-white/50 p-5 rounded-xl text-center shadow-md animate-pulse h-24"
+                className="glass p-5 rounded-xl text-center animate-pulse h-24"
               />
             ))}
           </div>

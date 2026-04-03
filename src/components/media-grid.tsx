@@ -45,7 +45,7 @@ export default function MediaGrid({ media, role, onEdit }: MediaGridProps) {
 
   if (media.length === 0) {
     return (
-      <div className="text-center py-14 text-gray-400">
+      <div className="text-center py-14 text-white/50">
         No items match your search.
       </div>
     );

@@ -45,7 +45,7 @@ function DashboardHeader({ profile }: { profile: Profile }) {
   return (
     <header className="flex justify-between items-center text-white mb-7 flex-wrap gap-4">
       <h1 className="text-3xl font-bold drop-shadow-md">
-        Radio Station Media Database
+        WZBC Media Database
       </h1>
       <div className="flex items-center gap-4 flex-wrap">
         <div>
@@ -57,7 +57,7 @@ function DashboardHeader({ profile }: { profile: Profile }) {
         <form action="/api/auth/logout" method="POST">
           <button
             type="submit"
-            className="bg-white/20 text-white border-2 border-white px-4 py-2 rounded-md font-semibold text-sm hover:bg-white/30 transition"
+            className="bg-bc-gold/20 text-white border-2 border-bc-gold px-4 py-2 rounded-md font-semibold text-sm hover:bg-bc-gold/30 transition"
           >
             Logout
           </button>

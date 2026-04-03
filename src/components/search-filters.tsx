@@ -25,19 +25,19 @@ export default function SearchFilters({
   );
 
   return (
-    <div className="bg-white rounded-xl p-4 mb-6 shadow-md">
+    <div className="glass rounded-xl p-4 mb-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <input
           type="text"
           placeholder="Search title or artist..."
           defaultValue={searchParams.get("q") ?? ""}
           onChange={(e) => updateParam("q", e.target.value)}
-          className="p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+          className="p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-bc-gold"
         />
         <select
           defaultValue={searchParams.get("type") ?? ""}
           onChange={(e) => updateParam("type", e.target.value)}
-          className="p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+          className="p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
         >
           <option value="">All Types</option>
           <option value="vinyl">Vinyl</option>
@@ -47,7 +47,7 @@ export default function SearchFilters({
         <select
           defaultValue={searchParams.get("genre") ?? ""}
           onChange={(e) => updateParam("genre", e.target.value)}
-          className="p-2.5 border-2 border-gray-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+          className="p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
         >
           <option value="">All Genres</option>
           {allGenres.map((g) => (

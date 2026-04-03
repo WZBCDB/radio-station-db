@@ -56,10 +56,10 @@ export default async function StatsBar() {
       {items.map((item) => (
         <div
           key={item.label}
-          className="bg-white p-5 rounded-xl text-center shadow-md"
+          className="glass p-5 rounded-xl text-center"
         >
-          <div className="text-4xl font-bold text-indigo-500">{item.value}</div>
-          <div className="text-gray-500 text-sm mt-1 font-medium">
+          <div className="text-4xl font-bold text-bc-gold">{item.value}</div>
+          <div className="text-white/70 text-sm mt-1 font-medium">
             {item.label}
           </div>
         </div>

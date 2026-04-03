@@ -18,7 +18,7 @@ export default function DashboardClient({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-7">
-      <div className="bg-white rounded-xl p-7 shadow-xl h-fit lg:sticky lg:top-5 lg:max-h-[88vh] lg:overflow-y-auto">
+      <div className="glass-bright rounded-xl p-7 h-fit lg:sticky lg:top-5 lg:max-h-[88vh] lg:overflow-y-auto">
         <MediaForm
           editing={editing}
           onDone={() => setEditing(null)}

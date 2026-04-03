@@ -1,6 +1,7 @@
 "use client";
 
 import type { Media } from "@/lib/types";
+import BoxDots from "@/components/box-dots";
 
 const TYPE_LABELS: Record<string, string> = {
   vinyl: "Vinyl Record",
@@ -63,8 +64,8 @@ export default function DetailModal({ item, onClose }: DetailModalProps) {
           </p>
         )}
         {item.location && (
-          <div className="bg-white/10 p-3 border-l-4 border-bc-gold rounded my-3 text-sm text-white/80">
-            <strong>Location:</strong> {item.location}
+          <div className="bg-white/10 p-3 border-l-4 border-bc-gold rounded my-3 text-sm text-white/80 flex items-center gap-2">
+            <strong>Box:</strong> <BoxDots letter={item.location} />
           </div>
         )}
         {item.notes && (

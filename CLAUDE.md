@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Product Overview
 
-College radio station media database -- a web app for cataloguing physical media (vinyl records, 45 RPM singles, CDs) owned by a radio station. Each station registers an account and can add, edit, search, and browse their media collection with photos, condition ratings, genre tags, and physical library locations (e.g. "Shelf B-4"). Supports role-based access: admins can delete items, members can add and edit.
+College radio station media database -- a web app for cataloguing physical media (vinyl records, 45 RPM singles, CDs) owned by a radio station. Each station registers an account and can add, edit, search, and browse their media collection with photos, condition ratings, genre tags, and physical box locations (labeled A–X, each identified by 3 colored dots). Supports role-based access: admins can delete items, members can add and edit.
 
 ## Architecture
 
@@ -18,7 +18,7 @@ College radio station media database -- a web app for cataloguing physical media
 ### Data Models (Supabase Postgres)
 
 - **profiles:** id (uuid, refs auth.users), display_name, role (`admin`|`member`), created_at. Auto-created on signup via trigger.
-- **media:** id (uuid), created_by (ref profiles), media_type (`vinyl`|`45`|`cd`), title, artist, label, year, genres[], location, condition, notes, date_added
+- **media:** id (uuid), created_by (ref profiles), media_type (`vinyl`|`45`|`cd`), title, artist, label, year, genres[], location (box letter A–X, each box identified by 3 colored dots per box-colors.md), condition, notes, date_added
 - **media_photos:** id (uuid), media_id (ref media), photo_type (`cover`|`condition`|`tag`), storage_path, description, uploaded_at
 
 ### Key Files

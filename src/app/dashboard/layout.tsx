@@ -9,11 +9,16 @@ async function getProfile(): Promise<Profile | null> {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single();
+
+  if (error) {
+    console.error("Error fetching profile:", error);
+    return null;
+  }
 
   return data;
 }

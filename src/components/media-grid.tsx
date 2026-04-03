@@ -26,11 +26,13 @@ export default function MediaGrid({ media, role, onEdit }: MediaGridProps) {
     const item = media.find((m) => m.id === id);
     if (item?.photos?.length) {
       const paths = item.photos.map((p) => p.storage_path);
-      await supabase.storage.from("media-photos").remove(paths);
+      const { error: storageErr } = await supabase.storage.from("media-photos").remove(paths);
+      if (storageErr) console.error("Error removing storage photos:", storageErr);
     }
 
     // Delete associated photo records
-    await supabase.from("media_photos").delete().eq("media_id", id);
+    const { error: photosErr } = await supabase.from("media_photos").delete().eq("media_id", id);
+    if (photosErr) console.error("Error deleting photo records:", photosErr);
 
     // Delete the media record
     const { error } = await supabase.from("media").delete().eq("id", id);

@@ -54,7 +54,11 @@ async function getMedia(filters: {
 
 async function getAllGenres(): Promise<string[]> {
   const supabase = await createClient();
-  const { data } = await supabase.from("media").select("genres");
+  const { data, error } = await supabase.from("media").select("genres");
+  if (error) {
+    console.error("Error fetching genres:", error);
+    return [];
+  }
   const genreSet = new Set<string>();
   (data ?? []).forEach((row) =>
     (row.genres ?? []).forEach((g: string) => genreSet.add(g))

@@ -10,24 +10,28 @@ interface Stats {
 async function getStats(): Promise<Stats> {
   const supabase = await createClient();
 
-  const { count: total } = await supabase
+  const { count: total, error: totalErr } = await supabase
     .from("media")
     .select("*", { count: "exact", head: true });
+  if (totalErr) console.error("Error fetching total count:", totalErr);
 
-  const { count: vinyl } = await supabase
+  const { count: vinyl, error: vinylErr } = await supabase
     .from("media")
     .select("*", { count: "exact", head: true })
     .eq("media_type", "vinyl");
+  if (vinylErr) console.error("Error fetching vinyl count:", vinylErr);
 
-  const { count: fortyfive } = await supabase
+  const { count: fortyfive, error: fortyFiveErr } = await supabase
     .from("media")
     .select("*", { count: "exact", head: true })
     .eq("media_type", "45");
+  if (fortyFiveErr) console.error("Error fetching 45 count:", fortyFiveErr);
 
-  const { count: cd } = await supabase
+  const { count: cd, error: cdErr } = await supabase
     .from("media")
     .select("*", { count: "exact", head: true })
     .eq("media_type", "cd");
+  if (cdErr) console.error("Error fetching CD count:", cdErr);
 
   return {
     total: total ?? 0,

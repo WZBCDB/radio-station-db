@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
+import { BOXES } from "@/lib/box-colors";
 
 export default function SearchFilters({
   allGenres,
@@ -26,7 +27,7 @@ export default function SearchFilters({
 
   return (
     <div className="glass rounded-xl p-4 mb-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <input
           type="text"
           placeholder="Search title or artist..."
@@ -53,6 +54,18 @@ export default function SearchFilters({
           {allGenres.map((g) => (
             <option key={g} value={g}>
               {g}
+            </option>
+          ))}
+        </select>
+        <select
+          defaultValue={searchParams.get("box") ?? ""}
+          onChange={(e) => updateParam("box", e.target.value)}
+          className="p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
+        >
+          <option value="">All Boxes</option>
+          {BOXES.map((b) => (
+            <option key={b.letter} value={b.letter}>
+              Box {b.letter} — {b.colors.map((c) => c.name).join(", ")}
             </option>
           ))}
         </select>

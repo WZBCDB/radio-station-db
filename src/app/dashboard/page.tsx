@@ -6,13 +6,14 @@ import DashboardClient from "@/components/dashboard-client";
 import type { Media, Profile } from "@/lib/types";
 
 interface DashboardProps {
-  searchParams: Promise<{ q?: string; type?: string; genre?: string }>;
+  searchParams: Promise<{ q?: string; type?: string; genre?: string; box?: string }>;
 }
 
 async function getMedia(filters: {
   q?: string;
   type?: string;
   genre?: string;
+  box?: string;
 }): Promise<Media[]> {
   const supabase = await createClient();
   let query = supabase
@@ -30,6 +31,9 @@ async function getMedia(filters: {
     query = query.or(
       `title.ilike.%${filters.q}%,artist.ilike.%${filters.q}%`
     );
+  }
+  if (filters.box) {
+    query = query.eq("location", filters.box);
   }
 
   const { data, error } = await query;

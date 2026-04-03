@@ -1,6 +1,7 @@
 "use client";
 
 import type { Media } from "@/lib/types";
+import BoxDots from "@/components/box-dots";
 
 const TYPE_LABELS: Record<string, string> = {
   vinyl: "Vinyl",
@@ -49,6 +50,11 @@ export default function MediaCard({
           {item.title}
         </div>
         <div className="text-white/70 text-sm mb-1">{item.artist}</div>
+        {item.location && (
+          <div className="mb-1">
+            <BoxDots letter={item.location} size="sm" />
+          </div>
+        )}
         {item.label && (
           <div className="text-white/50 text-xs mb-2">{item.label}</div>
         )}

@@ -134,12 +134,15 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
           continue;
         }
 
-        await supabase.from("media_photos").insert({
+        const { error: insertError } = await supabase.from("media_photos").insert({
           media_id: mediaId,
           photo_type: photo.type,
           storage_path: path,
           description: photo.description,
         });
+        if (insertError) {
+          console.error("Failed to save photo record:", insertError.message);
+        }
       }
 
       clearForm();

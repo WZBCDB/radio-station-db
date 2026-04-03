@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import type { Media, MediaType, Condition } from "@/lib/types";
 import PhotoUpload, { type PendingPhoto } from "@/components/photo-upload";
+import { BOXES } from "@/lib/box-colors";
+import BoxDots from "@/components/box-dots";
 
 interface MediaFormProps {
   editing: Media | null;
@@ -271,15 +273,26 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
 
         <div className="mb-4">
           <label className="block mb-1.5 text-sm font-semibold text-white/80">
-            Library Location
+            Box Location
           </label>
-          <input
-            type="text"
+          <select
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="e.g. Shelf B-4, Bin 12"
             className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
-          />
+          >
+            <option value="">No box assigned</option>
+            {BOXES.map((b) => (
+              <option key={b.letter} value={b.letter}>
+                Box {b.letter} — {b.colors.map((c) => c.name).join(", ")}
+              </option>
+            ))}
+          </select>
+          {location && (
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-xs text-white/60">Preview:</span>
+              <BoxDots letter={location} />
+            </div>
+          )}
         </div>
 
         <div className="mb-4">

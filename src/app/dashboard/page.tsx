@@ -71,11 +71,14 @@ async function getProfile(): Promise<Profile> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user!.id)
     .single();
+  if (error) {
+    console.error("Error fetching profile:", error);
+  }
   return data!;
 }
 

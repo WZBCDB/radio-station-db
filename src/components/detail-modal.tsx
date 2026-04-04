@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import type { Media } from "@/lib/types";
 import BoxDots from "@/components/box-dots";
+import { createClient } from "@/lib/supabase/client";
 
 const TYPE_LABELS: Record<string, string> = {
   vinyl: "Vinyl Record",
@@ -15,6 +17,11 @@ interface DetailModalProps {
 }
 
 export default function DetailModal({ item, onClose }: DetailModalProps) {
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.rpc("increment_view_count", { row_id: item.id });
+  }, [item.id]);
+
   return (
     <div
       onClick={onClose}

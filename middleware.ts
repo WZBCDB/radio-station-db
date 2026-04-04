@@ -31,11 +31,26 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  // Redirect unauthenticated users away from dashboard
-  if (path.startsWith("/dashboard") && !user) {
+  // Redirect unauthenticated users away from protected routes
+  if ((path.startsWith("/dashboard") || path.startsWith("/admin")) && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
+  }
+
+  // Redirect non-admins away from admin routes
+  if (path.startsWith("/admin") && user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile || profile.role !== "admin") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
   }
 
   // Redirect authenticated users away from auth pages
@@ -56,5 +71,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login", "/register", "/dashboard/:path*"],
+  matcher: ["/", "/login", "/register", "/dashboard/:path*", "/admin/:path*"],
 };

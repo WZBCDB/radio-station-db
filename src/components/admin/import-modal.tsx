@@ -4,6 +4,8 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
+import { BOXES } from "@/lib/box-colors";
+import BoxDots from "@/components/box-dots";
 
 const TARGET_FIELDS = [
   "media_type",
@@ -12,7 +14,6 @@ const TARGET_FIELDS = [
   "label",
   "year",
   "genres",
-  "location",
   "condition",
   "notes",
 ] as const;
@@ -24,6 +25,46 @@ const REQUIRED_FIELDS: TargetField[] = ["media_type", "title", "artist"];
 const VALID_MEDIA_TYPES = ["vinyl", "45", "cd"];
 const VALID_CONDITIONS = ["mint", "near-mint", "excellent", "good", "fair", "poor"];
 
+// Normalize free-text condition values to our enum
+const CONDITION_ALIASES: Record<string, string> = {
+  "near mint": "near-mint",
+  "nearmint": "near-mint",
+  "nm": "near-mint",
+  "very good": "good",
+  "vg": "good",
+  "vg+": "good",
+  "fair": "fair",
+  "poor": "poor",
+  "mint": "mint",
+  "excellent": "excellent",
+  "good": "good",
+};
+
+// Map common CSV column names to our target fields
+const COLUMN_ALIASES: Record<string, TargetField> = {
+  "artist": "artist",
+  "album": "title",
+  "title": "title",
+  "name": "title",
+  "genre": "genres",
+  "genres": "genres",
+  "genretags": "genres",
+  "genre tags": "genres",
+  "comments": "notes",
+  "notes": "notes",
+  "comment": "notes",
+  "recordcondition": "condition",
+  "record condition": "condition",
+  "condition": "condition",
+  "year": "year",
+  "yearreleased": "year",
+  "year released": "year",
+  "label": "label",
+  "mediatype": "media_type",
+  "media type": "media_type",
+  "type": "media_type",
+};
+
 interface ImportModalProps {
   onClose: () => void;
 }
@@ -34,6 +75,8 @@ export default function ImportModal({ onClose }: ImportModalProps) {
   const [headers, setHeaders] = useState<string[]>([]);
   const [rows, setRows] = useState<Record<string, string>[]>([]);
   const [mapping, setMapping] = useState<ColumnMapping>({});
+  const [defaultMediaType, setDefaultMediaType] = useState<string>("vinyl");
+  const [boxLetter, setBoxLetter] = useState<string>("");
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{ imported: number; skipped: number } | null>(null);
   const router = useRouter();
@@ -51,46 +94,77 @@ export default function ImportModal({ onClose }: ImportModalProps) {
 
       const hdrs = Object.keys(json[0]);
       setHeaders(hdrs);
-      setRows(json);
 
-      // Auto-map columns by name
+      // Filter out empty rows (where the first two meaningful columns are blank)
+      const filtered = json.filter((row) => {
+        const vals = Object.values(row).map((v) => v?.toString().trim() ?? "");
+        // Keep row if at least 2 non-empty values exist
+        return vals.filter(Boolean).length >= 2;
+      });
+      setRows(filtered);
+
+      // Auto-map columns by name using aliases
       const autoMap: ColumnMapping = {};
       hdrs.forEach((h) => {
-        const lower = h.toLowerCase().replace(/[^a-z]/g, "");
-        const match = TARGET_FIELDS.find(
-          (f) => f.replace("_", "") === lower || f === lower || lower.includes(f.replace("_", ""))
-        );
-        autoMap[h] = match ?? "";
+        const lower = h.toLowerCase().trim();
+        const normalized = lower.replace(/[^a-z]/g, "");
+        // Check aliases first (handles "Album", "Genre Tags", "Comments", "Record condition", etc.)
+        const alias = COLUMN_ALIASES[lower] ?? COLUMN_ALIASES[normalized];
+        if (alias) {
+          autoMap[h] = alias;
+        } else {
+          // Fallback: check if normalized name contains a target field
+          const match = TARGET_FIELDS.find(
+            (f) => f.replace("_", "") === normalized || normalized.includes(f.replace("_", ""))
+          );
+          autoMap[h] = match ?? "";
+        }
       });
       setMapping(autoMap);
     };
     reader.readAsArrayBuffer(file);
   }
 
+  function cleanValue(val: string): string {
+    // Strip surrounding quotes (the WZBC CSV has literal "example" values)
+    return val.replace(/^"+|"+$/g, "").replace(/^'+|'+$/g, "").trim();
+  }
+
   function mapRow(row: Record<string, string>): Record<string, unknown> | null {
     const mapped: Record<string, unknown> = {};
     for (const [header, field] of Object.entries(mapping)) {
       if (!field) continue;
-      const val = row[header]?.toString().trim() ?? "";
+      const raw = row[header]?.toString().trim() ?? "";
+      const val = cleanValue(raw);
       if (field === "year") {
         const num = parseInt(val);
         mapped.year = !isNaN(num) && num >= 1900 && num <= 2099 ? num : null;
       } else if (field === "genres") {
         mapped.genres = val
-          ? val.split(/[,;]/).map((g) => g.trim()).filter(Boolean)
+          ? val.split(/[,;]/).map((g) => cleanValue(g)).filter(Boolean)
           : [];
       } else if (field === "media_type") {
         mapped.media_type = VALID_MEDIA_TYPES.includes(val.toLowerCase())
           ? val.toLowerCase()
           : val;
       } else if (field === "condition") {
-        mapped.condition = VALID_CONDITIONS.includes(val.toLowerCase())
-          ? val.toLowerCase()
-          : null;
+        const lower = val.toLowerCase();
+        // Check direct match first, then aliases
+        if (VALID_CONDITIONS.includes(lower)) {
+          mapped.condition = lower;
+        } else {
+          mapped.condition = CONDITION_ALIASES[lower] ?? null;
+        }
       } else {
         mapped[field] = val || null;
       }
     }
+
+    // Apply default media type if not mapped or empty
+    if (!mapped.media_type && defaultMediaType) {
+      mapped.media_type = defaultMediaType;
+    }
+
     return mapped;
   }
 
@@ -120,6 +194,7 @@ export default function ImportModal({ onClose }: ImportModalProps) {
           ...mapped,
           created_by: user.id,
           genres: mapped.genres ?? [],
+          location: boxLetter || null,
         });
       } else {
         skipped++;
@@ -177,21 +252,62 @@ export default function ImportModal({ onClose }: ImportModalProps) {
           </div>
         ) : rows.length === 0 ? (
           <div>
-            <p className="text-white/60 text-sm mb-3">
-              Upload a CSV, XLSX, XLS, or ODS file.
+            <p className="text-white/60 text-sm mb-4">
+              Each spreadsheet is one box. Pick the box first, then upload the file.
             </p>
-            <label className="block p-8 bg-white/10 border-2 border-dashed border-bc-gold/50 rounded-md text-center cursor-pointer text-sm text-bc-gold font-medium hover:bg-white/20 transition">
-              Click to choose file
-              <input
-                type="file"
-                accept=".csv,.xlsx,.xls,.ods"
-                className="hidden"
-                onChange={(e) => handleFile(e.target.files?.[0])}
-              />
-            </label>
+
+            {/* Box selector */}
+            <div className="mb-5">
+              <label className="block mb-1.5 text-sm font-semibold text-white/80">
+                Which box is this sheet for?
+              </label>
+              <select
+                value={boxLetter}
+                onChange={(e) => setBoxLetter(e.target.value)}
+                className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
+              >
+                <option value="">Select a box...</option>
+                {BOXES.map((b) => (
+                  <option key={b.letter} value={b.letter}>
+                    Box {b.letter} — {b.colors.map((c) => c.name).join(", ")}
+                  </option>
+                ))}
+              </select>
+              {boxLetter && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-xs text-white/60">Preview:</span>
+                  <BoxDots letter={boxLetter} />
+                </div>
+              )}
+            </div>
+
+            {/* File upload — only enabled after box is selected */}
+            {boxLetter ? (
+              <label className="block p-8 bg-white/10 border-2 border-dashed border-bc-gold/50 rounded-md text-center cursor-pointer text-sm text-bc-gold font-medium hover:bg-white/20 transition">
+                Click to upload spreadsheet for Box {boxLetter}
+                <input
+                  type="file"
+                  accept=".csv,.xlsx,.xls,.ods"
+                  className="hidden"
+                  onChange={(e) => handleFile(e.target.files?.[0])}
+                />
+              </label>
+            ) : (
+              <div className="p-8 bg-white/5 border-2 border-dashed border-white/20 rounded-md text-center text-sm text-white/30">
+                Select a box above to enable file upload
+              </div>
+            )}
           </div>
         ) : (
           <>
+            {/* Selected box indicator */}
+            <div className="glass rounded-lg p-3 mb-5 flex items-center gap-3">
+              <span className="text-white/60 text-sm">Importing to:</span>
+              <BoxDots letter={boxLetter} />
+              <span className="text-white/80 text-sm font-semibold">Box {boxLetter}</span>
+              <span className="text-white/40 text-xs">({rows.length} rows loaded)</span>
+            </div>
+
             {/* Column mapping */}
             <div className="mb-5">
               <h4 className="text-white/80 text-sm font-semibold mb-2">Column Mapping</h4>
@@ -216,6 +332,23 @@ export default function ImportModal({ onClose }: ImportModalProps) {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Default media type */}
+            <div className="mb-5">
+              <h4 className="text-white/80 text-sm font-semibold mb-2">Default Media Type</h4>
+              <p className="text-white/50 text-xs mb-2">
+                Applied to all rows without a media_type column mapped.
+              </p>
+              <select
+                value={defaultMediaType}
+                onChange={(e) => setDefaultMediaType(e.target.value)}
+                className="p-2 bg-white/90 border border-white/30 rounded text-sm text-gray-900"
+              >
+                <option value="vinyl">Vinyl Record</option>
+                <option value="45">45 RPM Single</option>
+                <option value="cd">CD</option>
+              </select>
             </div>
 
             {/* Preview table */}

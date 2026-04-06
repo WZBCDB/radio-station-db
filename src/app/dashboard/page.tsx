@@ -28,8 +28,10 @@ async function getMedia(filters: {
     query = query.contains("genres", [filters.genre]);
   }
   if (filters.q) {
+    // Escape PostgREST special characters to prevent filter injection
+    const escaped = filters.q.replace(/[%,.*()\\]/g, (c) => `\\${c}`);
     query = query.or(
-      `title.ilike.%${filters.q}%,artist.ilike.%${filters.q}%`
+      `title.ilike.%${escaped}%,artist.ilike.%${escaped}%`
     );
   }
   if (filters.box) {

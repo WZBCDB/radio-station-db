@@ -77,12 +77,18 @@ create policy "Authenticated users can insert media"
   to authenticated
   with check (created_by = auth.uid());
 
--- All authenticated users can update media
-create policy "Authenticated users can update media"
+-- Owner or admin can update media
+create policy "Owner or admin can update media"
   on public.media for update
   to authenticated
-  using (true)
-  with check (true);
+  using (
+    created_by = auth.uid()
+    OR exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+  )
+  with check (
+    created_by = auth.uid()
+    OR exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+  );
 
 -- Only admins can delete media
 create policy "Only admins can delete media"

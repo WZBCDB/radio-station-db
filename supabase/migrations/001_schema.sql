@@ -23,6 +23,23 @@ create policy "Users can update own profile"
   using (id = auth.uid())
   with check (id = auth.uid() and role = (select role from public.profiles where id = auth.uid()));
 
+-- Admins can update any profile role
+create policy "Admins can update any profile role"
+  on public.profiles for update
+  to authenticated
+  using (
+    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+  )
+  with check (true);
+
+-- Admins can delete profiles
+create policy "Admins can delete profiles"
+  on public.profiles for delete
+  to authenticated
+  using (
+    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+  );
+
 -- ============================================================
 -- AUTO-CREATE PROFILE ON SIGNUP
 -- ============================================================
@@ -57,9 +74,10 @@ create table public.media (
   label       text,
   year        smallint check (year is null or (year >= 1900 and year <= 2099)),
   genres      text[] not null default '{}',
-  location    text,
+  location    text check (location is null or location ~ '^[A-X]$'),
   condition   text check (condition is null or condition in ('mint','near-mint','excellent','good','fair','poor')),
   notes       text,
+  view_count  integer not null default 0,
   date_added  timestamptz not null default now()
 );
 
@@ -100,6 +118,19 @@ create policy "Only admins can delete media"
       where id = auth.uid() and role = 'admin'
     )
   );
+
+-- ============================================================
+-- INCREMENT VIEW COUNT (avoids race conditions)
+-- ============================================================
+create or replace function public.increment_view_count(row_id uuid)
+returns void
+language plpgsql
+security definer
+as $$
+begin
+  update public.media set view_count = view_count + 1 where id = row_id;
+end;
+$$;
 
 -- ============================================================
 -- MEDIA PHOTOS
@@ -181,3 +212,4 @@ create index idx_media_title_artist on public.media using gin (
   to_tsvector('english', title || ' ' || artist)
 );
 create index idx_media_photos_media_id on public.media_photos(media_id);
+create index idx_media_location on public.media(location) where location is not null;

@@ -2,6 +2,7 @@
 
 import type { Media } from "@/lib/types";
 import BoxDots from "@/components/box-dots";
+import GenreTag from "@/components/genre-tag";
 
 const TYPE_LABELS: Record<string, string> = {
   vinyl: "Vinyl",
@@ -61,12 +62,7 @@ export default function MediaCard({
         {item.genres.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
             {item.genres.map((g) => (
-              <span
-                key={g}
-                className="bg-white/15 text-bc-gold-light px-2 py-0.5 rounded-full text-xs font-semibold"
-              >
-                {g}
-              </span>
+              <GenreTag key={g} name={g} />
             ))}
           </div>
         )}

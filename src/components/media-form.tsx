@@ -7,6 +7,8 @@ import type { Media, MediaType, Condition } from "@/lib/types";
 import PhotoUpload, { type PendingPhoto } from "@/components/photo-upload";
 import { BOXES } from "@/lib/box-colors";
 import BoxDots from "@/components/box-dots";
+import GenreInput from "@/components/genre-input";
+import GenreTag from "@/components/genre-tag";
 
 interface MediaFormProps {
   editing: Media | null;
@@ -20,7 +22,6 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
   const [label, setLabel] = useState("");
   const [year, setYear] = useState("");
   const [genres, setGenres] = useState<string[]>([]);
-  const [genreInput, setGenreInput] = useState("");
   const [location, setLocation] = useState("");
   const [condition, setCondition] = useState<Condition | "">("");
   const [notes, setNotes] = useState("");
@@ -53,22 +54,11 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
     setLabel("");
     setYear("");
     setGenres([]);
-    setGenreInput("");
     setLocation("");
     setCondition("");
     setNotes("");
     setPhotos([]);
     onDone();
-  }
-
-  function addGenre(e: React.KeyboardEvent) {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
-    const val = genreInput.trim();
-    if (val && !genres.includes(val)) {
-      setGenres([...genres, val]);
-    }
-    setGenreInput("");
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -241,31 +231,19 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
         <div className="mb-4">
           <label className="block mb-1.5 text-sm font-semibold text-white/80">
             Genres{" "}
-            <span className="font-normal text-xs">(type & press Enter)</span>
+            <span className="font-normal text-xs">(type & press Enter, comma-separated ok)</span>
           </label>
-          <input
-            type="text"
-            value={genreInput}
-            onChange={(e) => setGenreInput(e.target.value)}
-            onKeyDown={addGenre}
-            placeholder="e.g. Jazz, Soul, Rock..."
-            className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
-          />
+          <GenreInput selected={genres} onChange={setGenres} />
           {genres.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {genres.map((g) => (
-                <span
+                <GenreTag
                   key={g}
-                  className="bg-bc-gold text-white px-3 py-1 rounded-full text-xs flex items-center gap-1"
-                >
-                  {g}
-                  <span
-                    className="cursor-pointer font-bold opacity-80 hover:opacity-100"
-                    onClick={() => setGenres(genres.filter((x) => x !== g))}
-                  >
-                    &times;
-                  </span>
-                </span>
+                  name={g}
+                  removable
+                  onRemove={() => setGenres(genres.filter((x) => x !== g))}
+                  className="bg-bc-gold text-white"
+                />
               ))}
             </div>
           )}

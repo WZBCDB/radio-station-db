@@ -2,12 +2,15 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
-import { BOXES } from "@/lib/box-colors";
+import type { Box } from "@/lib/types";
+import { boxToColors } from "@/lib/box-colors";
 
 export default function SearchFilters({
   allGenres,
+  boxes,
 }: {
   allGenres: string[];
+  boxes: Box[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -63,11 +66,14 @@ export default function SearchFilters({
           className="p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
         >
           <option value="">All Boxes</option>
-          {BOXES.map((b) => (
-            <option key={b.letter} value={b.letter}>
-              Box {b.letter} — {b.colors.map((c) => c.name).join(", ")}
-            </option>
-          ))}
+          {boxes.map((b) => {
+            const colors = boxToColors(b);
+            return (
+              <option key={b.name} value={b.name}>
+                Box {b.name} — {colors.map((c) => c.name).join(", ")}
+              </option>
+            );
+          })}
         </select>
       </div>
     </div>

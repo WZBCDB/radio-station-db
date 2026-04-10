@@ -3,17 +3,18 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import type { Condition } from "@/lib/types";
-import { BOXES } from "@/lib/box-colors";
+import type { Condition, Box } from "@/lib/types";
+import { boxToColors } from "@/lib/box-colors";
 
 type EditField = "location" | "condition" | "add_genre" | "remove_genre";
 
 interface BulkEditModalProps {
   selectedIds: string[];
   onClose: () => void;
+  boxes: Box[];
 }
 
-export default function BulkEditModal({ selectedIds, onClose }: BulkEditModalProps) {
+export default function BulkEditModal({ selectedIds, onClose, boxes }: BulkEditModalProps) {
   const [field, setField] = useState<EditField>("location");
   const [value, setValue] = useState("");
   const [saving, setSaving] = useState(false);
@@ -107,11 +108,14 @@ export default function BulkEditModal({ selectedIds, onClose }: BulkEditModalPro
               className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
             >
               <option value="">No box assigned</option>
-              {BOXES.map((b) => (
-                <option key={b.letter} value={b.letter}>
-                  Box {b.letter} — {b.colors.map((c) => c.name).join(", ")}
-                </option>
-              ))}
+              {boxes.map((b) => {
+                const colors = boxToColors(b);
+                return (
+                  <option key={b.name} value={b.name}>
+                    Box {b.name} — {colors.map((c) => c.name).join(", ")}
+                  </option>
+                );
+              })}
             </select>
           ) : field === "condition" ? (
             <select

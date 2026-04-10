@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import type { Media, MediaType, Condition } from "@/lib/types";
+import type { Media, MediaType, Condition, Box } from "@/lib/types";
 import PhotoUpload, { type PendingPhoto } from "@/components/photo-upload";
-import { BOXES } from "@/lib/box-colors";
+import { boxToColors } from "@/lib/box-colors";
 import BoxDots from "@/components/box-dots";
 import GenreInput from "@/components/genre-input";
 import GenreTag from "@/components/genre-tag";
@@ -13,9 +13,10 @@ import GenreTag from "@/components/genre-tag";
 interface MediaFormProps {
   editing: Media | null;
   onDone: () => void;
+  boxes: Box[];
 }
 
-export default function MediaForm({ editing, onDone }: MediaFormProps) {
+export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
   const [mediaType, setMediaType] = useState<MediaType | "">("");
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
@@ -259,18 +260,24 @@ export default function MediaForm({ editing, onDone }: MediaFormProps) {
             className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
           >
             <option value="">No box assigned</option>
-            {BOXES.map((b) => (
-              <option key={b.letter} value={b.letter}>
-                Box {b.letter} — {b.colors.map((c) => c.name).join(", ")}
-              </option>
-            ))}
+            {boxes.map((b) => {
+              const colors = boxToColors(b);
+              return (
+                <option key={b.name} value={b.name}>
+                  Box {b.name} — {colors.map((c) => c.name).join(", ")}
+                </option>
+              );
+            })}
           </select>
-          {location && (
-            <div className="mt-2 flex items-center gap-2">
-              <span className="text-xs text-white/60">Preview:</span>
-              <BoxDots letter={location} />
-            </div>
-          )}
+          {location && (() => {
+            const box = boxes.find((b) => b.name === location);
+            return box ? (
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-xs text-white/60">Preview:</span>
+                <BoxDots letter={location} colors={boxToColors(box).map(c => ({ name: c.name, hex: c.hex }))} />
+              </div>
+            ) : null;
+          })()}
         </div>
 
         <div className="mb-4">

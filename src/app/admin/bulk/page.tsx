@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Media } from "@/lib/types";
+import type { Media, Box } from "@/lib/types";
 import BulkClient from "./bulk-client";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +28,20 @@ async function getAllMedia(): Promise<Media[]> {
   }));
 }
 
+async function getBoxes(): Promise<Box[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("boxes")
+    .select("*")
+    .order("sort_order");
+  if (error) {
+    console.error("Error fetching boxes:", error);
+    return [];
+  }
+  return data ?? [];
+}
+
 export default async function BulkPage() {
-  const media = await getAllMedia();
-  return <BulkClient media={media} />;
+  const [media, boxes] = await Promise.all([getAllMedia(), getBoxes()]);
+  return <BulkClient media={media} boxes={boxes} />;
 }

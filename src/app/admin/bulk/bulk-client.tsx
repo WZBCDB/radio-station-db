@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import type { Media } from "@/lib/types";
+import type { Media, Box } from "@/lib/types";
 import BulkGrid from "@/components/admin/bulk-grid";
 import BulkToolbar from "@/components/admin/bulk-toolbar";
 import BulkEditModal from "@/components/admin/bulk-edit-modal";
 import ImportModal from "@/components/admin/import-modal";
 
-export default function BulkClient({ media }: { media: Media[] }) {
+export default function BulkClient({ media, boxes }: { media: Media[]; boxes: Box[] }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showEdit, setShowEdit] = useState(false);
   const [showImport, setShowImport] = useState(false);
@@ -54,10 +54,11 @@ export default function BulkClient({ media }: { media: Media[] }) {
             setShowEdit(false);
             deselectAll();
           }}
+          boxes={boxes}
         />
       )}
 
-      {showImport && <ImportModal onClose={() => setShowImport(false)} />}
+      {showImport && <ImportModal onClose={() => setShowImport(false)} boxes={boxes} />}
     </>
   );
 }

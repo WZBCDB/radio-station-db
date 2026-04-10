@@ -7,18 +7,18 @@ import { createClient } from "@/lib/supabase/client";
 let genreCache: Record<string, string> | null = null;
 let fetchPromise: Promise<void> | null = null;
 
-function ensureCache(): Promise<void> {
-  if (genreCache) return Promise.resolve();
+async function ensureCache(): Promise<void> {
+  if (genreCache) return;
   if (fetchPromise) return fetchPromise;
-  fetchPromise = createClient()
-    .from("genres")
-    .select("name, description")
-    .then(({ data }) => {
-      genreCache = {};
-      (data ?? []).forEach((g: { name: string; description: string }) => {
-        if (g.description) genreCache![g.name] = g.description;
-      });
+  fetchPromise = (async () => {
+    const { data } = await createClient()
+      .from("genres")
+      .select("name, description");
+    genreCache = {};
+    (data ?? []).forEach((g: { name: string; description: string }) => {
+      if (g.description) genreCache![g.name] = g.description;
     });
+  })();
   return fetchPromise;
 }
 

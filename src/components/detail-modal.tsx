@@ -76,6 +76,14 @@ export default function DetailModal({ item, onClose }: DetailModalProps) {
             </div>
           </div>
         )}
+        {item.source_row && (
+          <div className="mb-2 text-sm text-white/80 flex items-center gap-2">
+            <strong>Spreadsheet Row:</strong>
+            <span className="bg-white/20 text-white/70 px-2.5 py-0.5 rounded-full text-xs font-semibold">
+              #{item.source_row}
+            </span>
+          </div>
+        )}
         {item.location && (
           <div className="bg-white/10 p-3 border-l-4 border-bc-gold rounded my-3 text-sm text-white/80 flex items-center gap-2">
             <strong>Box:</strong> <BoxDots letter={item.location} />

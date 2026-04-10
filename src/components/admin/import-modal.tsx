@@ -189,14 +189,15 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
     const batchSize = 50;
     const validRows: Record<string, unknown>[] = [];
 
-    for (const row of rows) {
-      const mapped = mapRow(row);
+    for (let idx = 0; idx < rows.length; idx++) {
+      const mapped = mapRow(rows[idx]);
       if (mapped && isValid(mapped)) {
         validRows.push({
           ...mapped,
           created_by: user.id,
           genres: mapped.genres ?? [],
           location: boxLetter || null,
+          source_row: idx + 2, // +2: row 1 is header, data starts at row 2
         });
       } else {
         skipped++;

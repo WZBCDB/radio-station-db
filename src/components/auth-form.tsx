@@ -52,7 +52,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
       router.push("/dashboard");
       router.refresh();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const msg = err instanceof Error ? err.message : "Something went wrong";
+      if (msg.toLowerCase().includes("rate") || msg.toLowerCase().includes("too many")) {
+        setError("Too many attempts. Please wait a few minutes before trying again.");
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }

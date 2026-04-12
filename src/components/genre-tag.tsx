@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { normalizeGenre } from "@/lib/genre-aliases";
 
 // Module-level cache — fetched once, shared across all GenreTag instances
 let genreCache: Record<string, string> | null = null;
@@ -37,15 +38,17 @@ export default function GenreTag({
   onRemove,
   className = "",
 }: GenreTagProps) {
+  const displayName = normalizeGenre(name);
   const [showTooltip, setShowTooltip] = useState(false);
   const [desc, setDesc] = useState(descProp ?? "");
 
   useEffect(() => {
     if (descProp) return;
     ensureCache().then(() => {
-      setDesc(genreCache?.[name] ?? "");
+      // Check both original and normalized name for description lookup
+      setDesc(genreCache?.[displayName] ?? genreCache?.[name] ?? "");
     });
-  }, [name, descProp]);
+  }, [name, displayName, descProp]);
 
   return (
     <span
@@ -53,7 +56,7 @@ export default function GenreTag({
       onMouseEnter={() => desc && setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      {name}
+      {displayName}
       {desc && (
         <span className="text-white/40 text-[10px]">ⓘ</span>
       )}

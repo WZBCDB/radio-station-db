@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
 import { boxToColors } from "@/lib/box-colors";
+import { normalizeGenre } from "@/lib/genre-aliases";
 import type { Box } from "@/lib/types";
 import BoxDots from "@/components/box-dots";
 
@@ -143,7 +144,7 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
         mapped.year = !isNaN(num) && num >= 1900 && num <= 2099 ? num : null;
       } else if (field === "genres") {
         mapped.genres = val
-          ? val.split(/[,;]/).map((g) => cleanValue(g)).filter(Boolean)
+          ? val.split(/[,;]/).map((g) => normalizeGenre(cleanValue(g))).filter(Boolean)
           : [];
       } else if (field === "media_type") {
         mapped.media_type = VALID_MEDIA_TYPES.includes(val.toLowerCase())

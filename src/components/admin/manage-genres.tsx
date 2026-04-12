@@ -55,43 +55,54 @@ export default function ManageGenres({ onClose }: ManageGenresProps) {
     if (!trimmedName) return;
     setSaving(true);
 
-    // Update the genre record
-    const { error } = await supabase
-      .from("genres")
-      .update({ name: trimmedName, description: trimmedDesc })
-      .eq("id", id);
+    try {
+      // Update the genre record — .select().single() confirms it actually persisted
+      const { data: updated, error } = await supabase
+        .from("genres")
+        .update({ name: trimmedName, description: trimmedDesc })
+        .eq("id", id)
+        .select()
+        .single();
 
-    if (error) {
-      alert(error.message.includes("unique")
-        ? "A genre with that name already exists."
-        : error.message);
-      setSaving(false);
-      return;
-    }
+      if (error) {
+        alert(error.message.includes("unique")
+          ? "A genre with that name already exists."
+          : "Save failed: " + error.message);
+        return;
+      }
 
-    // If the name changed, update all media records that reference the old name
-    if (trimmedName !== oldName) {
-      const { data: affected } = await supabase
-        .from("media")
-        .select("id, genres")
-        .contains("genres", [oldName]);
+      if (!updated) {
+        alert("Save failed — you may not have permission to edit genres.");
+        return;
+      }
 
-      if (affected?.length) {
-        for (const row of affected) {
-          const updated = row.genres.map((g: string) =>
-            g === oldName ? trimmedName : g
-          );
-          await supabase
-            .from("media")
-            .update({ genres: updated })
-            .eq("id", row.id);
+      // If the name changed, update all media records that reference the old name
+      if (trimmedName !== oldName) {
+        const { data: affected } = await supabase
+          .from("media")
+          .select("id, genres")
+          .contains("genres", [oldName]);
+
+        if (affected?.length) {
+          for (const row of affected) {
+            const updatedGenres = row.genres.map((g: string) =>
+              g === oldName ? trimmedName : g
+            );
+            await supabase
+              .from("media")
+              .update({ genres: updatedGenres })
+              .eq("id", row.id);
+          }
         }
       }
-    }
 
-    setEditingId(null);
-    await loadGenres();
-    setSaving(false);
+      setEditingId(null);
+      await loadGenres();
+    } catch (err) {
+      alert("Save failed: " + (err instanceof Error ? err.message : "Unknown error"));
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleDelete(id: string) {

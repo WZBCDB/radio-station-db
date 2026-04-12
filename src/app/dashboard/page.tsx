@@ -6,7 +6,15 @@ import DashboardClient from "@/components/dashboard-client";
 import type { Media, Profile, Box } from "@/lib/types";
 
 interface DashboardProps {
-  searchParams: Promise<{ q?: string; type?: string; genre?: string; box?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    type?: string;
+    genre?: string;
+    box?: string;
+    year?: string;
+    condition?: string;
+    label?: string;
+  }>;
 }
 
 async function getMedia(filters: {
@@ -14,6 +22,9 @@ async function getMedia(filters: {
   type?: string;
   genre?: string;
   box?: string;
+  year?: string;
+  condition?: string;
+  label?: string;
 }): Promise<Media[]> {
   const supabase = await createClient();
   let query = supabase
@@ -36,6 +47,19 @@ async function getMedia(filters: {
   }
   if (filters.box) {
     query = query.eq("location", filters.box);
+  }
+  if (filters.year) {
+    const num = parseInt(filters.year);
+    if (!isNaN(num)) {
+      query = query.eq("year", num);
+    }
+  }
+  if (filters.condition) {
+    query = query.eq("condition", filters.condition);
+  }
+  if (filters.label) {
+    const escaped = filters.label.replace(/[%,.*()\\]/g, (c) => `\\${c}`);
+    query = query.ilike("label", `%${escaped}%`);
   }
 
   const { data, error } = await query;
@@ -72,6 +96,32 @@ async function getAllGenres(): Promise<string[]> {
   return [...genreSet].sort();
 }
 
+async function getYears(): Promise<number[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("media")
+    .select("year")
+    .not("year", "is", null);
+  const years = new Set<number>();
+  (data ?? []).forEach((r) => {
+    if (r.year) years.add(r.year);
+  });
+  return [...years].sort((a, b) => b - a);
+}
+
+async function getLabels(): Promise<string[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("media")
+    .select("label")
+    .not("label", "is", null);
+  const labels = new Set<string>();
+  (data ?? []).forEach((r) => {
+    if (r.label) labels.add(r.label);
+  });
+  return [...labels].sort();
+}
+
 async function getBoxes(): Promise<Box[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -103,11 +153,13 @@ async function getProfile(): Promise<Profile> {
 
 export default async function DashboardPage({ searchParams }: DashboardProps) {
   const filters = await searchParams;
-  const [media, allGenres, profile, boxes] = await Promise.all([
+  const [media, allGenres, profile, boxes, allYears, allLabels] = await Promise.all([
     getMedia(filters),
     getAllGenres(),
     getProfile(),
     getBoxes(),
+    getYears(),
+    getLabels(),
   ]);
 
   return (
@@ -127,7 +179,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         <StatsBar />
       </Suspense>
 
-      <SearchFilters allGenres={allGenres} boxes={boxes} />
+      <SearchFilters allGenres={allGenres} boxes={boxes} allYears={allYears} allLabels={allLabels} />
 
       <DashboardClient media={media} role={profile.role} boxes={boxes} />
     </>

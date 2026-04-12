@@ -19,6 +19,26 @@ export interface Profile {
   created_at: string;
 }
 
+export interface Genre {
+  id: string;
+  name: string;
+  description: string;
+  parent_id: string | null;
+  created_at: string;
+}
+
+export interface Box {
+  id: string;
+  name: string;
+  color1_name: string;
+  color1_hex: string;
+  color2_name: string;
+  color2_hex: string;
+  color3_name: string;
+  color3_hex: string;
+  sort_order: number;
+}
+
 export interface MediaPhoto {
   id: string;
   media_id: string;
@@ -42,6 +62,7 @@ export interface Media {
   condition: Condition | null;
   notes: string | null;
   date_added: string;
+  source_row: number | null;
   photos: MediaPhoto[];
   profile?: Pick<Profile, "display_name">;
 }

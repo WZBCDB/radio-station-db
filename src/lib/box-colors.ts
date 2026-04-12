@@ -1,3 +1,6 @@
+import { createClient } from "@/lib/supabase/client";
+import type { Box } from "@/lib/types";
+
 export interface BoxColor {
   name: string;
   hex: string;
@@ -55,3 +58,20 @@ export const BOX_BY_LETTER: Record<string, BoxDefinition> = Object.fromEntries(
 );
 
 export const BOX_LETTERS = BOXES.map((b) => b.letter);
+
+export async function fetchBoxes(): Promise<Box[]> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("boxes")
+    .select("*")
+    .order("sort_order");
+  return data ?? [];
+}
+
+export function boxToColors(box: Box): [BoxColor, BoxColor, BoxColor] {
+  return [
+    { name: box.color1_name, hex: box.color1_hex },
+    { name: box.color2_name, hex: box.color2_hex },
+    { name: box.color3_name, hex: box.color3_hex },
+  ];
+}

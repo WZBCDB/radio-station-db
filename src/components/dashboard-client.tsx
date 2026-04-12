@@ -1,18 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import type { Media, Role } from "@/lib/types";
+import type { Media, Role, Box } from "@/lib/types";
 import MediaGrid from "@/components/media-grid";
 import MediaForm from "@/components/media-form";
 
 interface DashboardClientProps {
   media: Media[];
   role: Role;
+  boxes: Box[];
 }
 
 export default function DashboardClient({
   media,
   role,
+  boxes,
 }: DashboardClientProps) {
   const [editing, setEditing] = useState<Media | null>(null);
 
@@ -22,6 +24,7 @@ export default function DashboardClient({
         <MediaForm
           editing={editing}
           onDone={() => setEditing(null)}
+          boxes={boxes}
         />
       </div>
       <MediaGrid media={media} role={role} onEdit={setEditing} />

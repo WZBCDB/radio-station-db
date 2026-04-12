@@ -4,7 +4,8 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
-import { BOXES } from "@/lib/box-colors";
+import { boxToColors } from "@/lib/box-colors";
+import type { Box } from "@/lib/types";
 import BoxDots from "@/components/box-dots";
 
 const TARGET_FIELDS = [
@@ -67,11 +68,12 @@ const COLUMN_ALIASES: Record<string, TargetField> = {
 
 interface ImportModalProps {
   onClose: () => void;
+  boxes: Box[];
 }
 
 type ColumnMapping = Record<string, TargetField | "">;
 
-export default function ImportModal({ onClose }: ImportModalProps) {
+export default function ImportModal({ onClose, boxes }: ImportModalProps) {
   const [headers, setHeaders] = useState<string[]>([]);
   const [rows, setRows] = useState<Record<string, string>[]>([]);
   const [mapping, setMapping] = useState<ColumnMapping>({});
@@ -187,14 +189,15 @@ export default function ImportModal({ onClose }: ImportModalProps) {
     const batchSize = 50;
     const validRows: Record<string, unknown>[] = [];
 
-    for (const row of rows) {
-      const mapped = mapRow(row);
+    for (let idx = 0; idx < rows.length; idx++) {
+      const mapped = mapRow(rows[idx]);
       if (mapped && isValid(mapped)) {
         validRows.push({
           ...mapped,
           created_by: user.id,
           genres: mapped.genres ?? [],
           location: boxLetter || null,
+          source_row: idx + 2, // +2: row 1 is header, data starts at row 2
         });
       } else {
         skipped++;
@@ -267,18 +270,24 @@ export default function ImportModal({ onClose }: ImportModalProps) {
                 className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
               >
                 <option value="">Select a box...</option>
-                {BOXES.map((b) => (
-                  <option key={b.letter} value={b.letter}>
-                    Box {b.letter} — {b.colors.map((c) => c.name).join(", ")}
-                  </option>
-                ))}
+                {boxes.map((b) => {
+                  const colors = boxToColors(b);
+                  return (
+                    <option key={b.name} value={b.name}>
+                      Box {b.name} — {colors.map((c) => c.name).join(", ")}
+                    </option>
+                  );
+                })}
               </select>
-              {boxLetter && (
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="text-xs text-white/60">Preview:</span>
-                  <BoxDots letter={boxLetter} />
-                </div>
-              )}
+              {boxLetter && (() => {
+                const box = boxes.find((b) => b.name === boxLetter);
+                return box ? (
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="text-xs text-white/60">Preview:</span>
+                    <BoxDots letter={boxLetter} colors={boxToColors(box).map(c => ({ name: c.name, hex: c.hex }))} />
+                  </div>
+                ) : null;
+              })()}
             </div>
 
             {/* File upload — only enabled after box is selected */}
@@ -303,7 +312,7 @@ export default function ImportModal({ onClose }: ImportModalProps) {
             {/* Selected box indicator */}
             <div className="glass rounded-lg p-3 mb-5 flex items-center gap-3">
               <span className="text-white/60 text-sm">Importing to:</span>
-              <BoxDots letter={boxLetter} />
+              <BoxDots letter={boxLetter} colors={(() => { const box = boxes.find((b) => b.name === boxLetter); return box ? boxToColors(box) : undefined; })()} />
               <span className="text-white/80 text-sm font-semibold">Box {boxLetter}</span>
               <span className="text-white/40 text-xs">({rows.length} rows loaded)</span>
             </div>

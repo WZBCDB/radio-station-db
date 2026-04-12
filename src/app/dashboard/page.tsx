@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import StatsBar from "@/components/stats-bar";
 import SearchFilters from "@/components/search-filters";
 import DashboardClient from "@/components/dashboard-client";
-import type { Media, Profile } from "@/lib/types";
+import type { Media, Profile, Box } from "@/lib/types";
 
 interface DashboardProps {
   searchParams: Promise<{ q?: string; type?: string; genre?: string; box?: string }>;
@@ -72,6 +72,19 @@ async function getAllGenres(): Promise<string[]> {
   return [...genreSet].sort();
 }
 
+async function getBoxes(): Promise<Box[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("boxes")
+    .select("*")
+    .order("sort_order");
+  if (error) {
+    console.error("Error fetching boxes:", error);
+    return [];
+  }
+  return data ?? [];
+}
+
 async function getProfile(): Promise<Profile> {
   const supabase = await createClient();
   const {
@@ -90,10 +103,11 @@ async function getProfile(): Promise<Profile> {
 
 export default async function DashboardPage({ searchParams }: DashboardProps) {
   const filters = await searchParams;
-  const [media, allGenres, profile] = await Promise.all([
+  const [media, allGenres, profile, boxes] = await Promise.all([
     getMedia(filters),
     getAllGenres(),
     getProfile(),
+    getBoxes(),
   ]);
 
   return (
@@ -113,9 +127,9 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         <StatsBar />
       </Suspense>
 
-      <SearchFilters allGenres={allGenres} />
+      <SearchFilters allGenres={allGenres} boxes={boxes} />
 
-      <DashboardClient media={media} role={profile.role} />
+      <DashboardClient media={media} role={profile.role} boxes={boxes} />
     </>
   );
 }

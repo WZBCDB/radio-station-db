@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import type { Media } from "@/lib/types";
 import BoxDots from "@/components/box-dots";
+import GenreTag from "@/components/genre-tag";
 import { createClient } from "@/lib/supabase/client";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -66,9 +67,22 @@ export default function DetailModal({ item, onClose }: DetailModalProps) {
           </p>
         )}
         {item.genres.length > 0 && (
-          <p className="mb-2 text-sm text-white/80">
-            <strong>Genres:</strong> {item.genres.join(", ")}
-          </p>
+          <div className="mb-2 text-sm text-white/80">
+            <strong>Genres:</strong>
+            <div className="flex flex-wrap gap-1.5 mt-1">
+              {item.genres.map((g) => (
+                <GenreTag key={g} name={g} />
+              ))}
+            </div>
+          </div>
+        )}
+        {item.source_row && (
+          <div className="mb-2 text-sm text-white/80 flex items-center gap-2">
+            <strong>Spreadsheet Row:</strong>
+            <span className="bg-white/20 text-white/70 px-2.5 py-0.5 rounded-full text-xs font-semibold">
+              #{item.source_row}
+            </span>
+          </div>
         )}
         {item.location && (
           <div className="bg-white/10 p-3 border-l-4 border-bc-gold rounded my-3 text-sm text-white/80 flex items-center gap-2">

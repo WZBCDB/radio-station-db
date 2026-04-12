@@ -13,6 +13,7 @@ export default function ManageGenres({ onClose }: ManageGenresProps) {
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
   const [editDesc, setEditDesc] = useState("");
   const [saving, setSaving] = useState(false);
   const supabase = createClient();
@@ -48,12 +49,46 @@ export default function ManageGenres({ onClose }: ManageGenresProps) {
     setSaving(false);
   }
 
-  async function handleSaveDesc(id: string) {
+  async function handleSaveEdit(id: string, oldName: string) {
+    const trimmedName = editName.trim();
+    const trimmedDesc = editDesc.trim();
+    if (!trimmedName) return;
     setSaving(true);
-    await supabase
+
+    // Update the genre record
+    const { error } = await supabase
       .from("genres")
-      .update({ description: editDesc.trim() })
+      .update({ name: trimmedName, description: trimmedDesc })
       .eq("id", id);
+
+    if (error) {
+      alert(error.message.includes("unique")
+        ? "A genre with that name already exists."
+        : error.message);
+      setSaving(false);
+      return;
+    }
+
+    // If the name changed, update all media records that reference the old name
+    if (trimmedName !== oldName) {
+      const { data: affected } = await supabase
+        .from("media")
+        .select("id, genres")
+        .contains("genres", [oldName]);
+
+      if (affected?.length) {
+        for (const row of affected) {
+          const updated = row.genres.map((g: string) =>
+            g === oldName ? trimmedName : g
+          );
+          await supabase
+            .from("media")
+            .update({ genres: updated })
+            .eq("id", row.id);
+        }
+      }
+    }
+
     setEditingId(null);
     await loadGenres();
     setSaving(false);
@@ -108,27 +143,38 @@ export default function ManageGenres({ onClose }: ManageGenresProps) {
               <div className="flex-1">
                 <div className="text-white font-semibold text-sm">{g.name}</div>
                 {editingId === g.id ? (
-                  <div className="flex gap-2 mt-1">
-                    <input
-                      type="text"
-                      value={editDesc}
-                      onChange={(e) => setEditDesc(e.target.value)}
-                      placeholder="Add a description..."
-                      className="flex-1 p-1.5 bg-white/90 border border-white/30 rounded text-xs text-gray-900"
-                    />
-                    <button
-                      onClick={() => handleSaveDesc(g.id)}
-                      disabled={saving}
-                      className="px-3 py-1 bg-bc-gold text-white rounded text-xs font-bold"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => setEditingId(null)}
-                      className="px-3 py-1 bg-white/15 text-white/80 rounded text-xs"
-                    >
-                      Cancel
-                    </button>
+                  <div className="mt-1 space-y-1.5">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        placeholder="Genre name"
+                        className="flex-1 p-1.5 bg-white/90 border border-white/30 rounded text-xs text-gray-900 font-semibold"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={editDesc}
+                        onChange={(e) => setEditDesc(e.target.value)}
+                        placeholder="Description (optional)"
+                        className="flex-1 p-1.5 bg-white/90 border border-white/30 rounded text-xs text-gray-900"
+                      />
+                      <button
+                        onClick={() => handleSaveEdit(g.id, g.name)}
+                        disabled={saving || !editName.trim()}
+                        className="px-3 py-1 bg-bc-gold text-white rounded text-xs font-bold disabled:opacity-50"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="px-3 py-1 bg-white/15 text-white/80 rounded text-xs"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="text-white/50 text-xs mt-0.5">
@@ -136,6 +182,7 @@ export default function ManageGenres({ onClose }: ManageGenresProps) {
                     <button
                       onClick={() => {
                         setEditingId(g.id);
+                        setEditName(g.name);
                         setEditDesc(g.description);
                       }}
                       className="ml-2 text-bc-gold hover:text-bc-gold-light underline"

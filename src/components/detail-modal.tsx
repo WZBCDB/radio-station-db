@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import type { Media } from "@/lib/types";
+import type { Media, Box } from "@/lib/types";
 import BoxDots from "@/components/box-dots";
 import GenreTag from "@/components/genre-tag";
 import { createClient } from "@/lib/supabase/client";
+import { boxToColors } from "@/lib/box-colors";
 
 const TYPE_LABELS: Record<string, string> = {
   vinyl: "Vinyl Record",
@@ -15,9 +16,10 @@ const TYPE_LABELS: Record<string, string> = {
 interface DetailModalProps {
   item: Media;
   onClose: () => void;
+  boxes: Box[];
 }
 
-export default function DetailModal({ item, onClose }: DetailModalProps) {
+export default function DetailModal({ item, onClose, boxes }: DetailModalProps) {
   useEffect(() => {
     const supabase = createClient();
     supabase.rpc("increment_view_count", { row_id: item.id });
@@ -84,11 +86,15 @@ export default function DetailModal({ item, onClose }: DetailModalProps) {
             </span>
           </div>
         )}
-        {item.location && (
-          <div className="bg-white/10 p-3 border-l-4 border-bc-gold rounded my-3 text-sm text-white/80 flex items-center gap-2">
-            <strong>Box:</strong> <BoxDots letter={item.location} />
-          </div>
-        )}
+        {item.location && (() => {
+          const box = boxes.find((b) => b.name === item.location);
+          const colors = box ? boxToColors(box).map((c) => ({ name: c.name, hex: c.hex })) : undefined;
+          return (
+            <div className="bg-white/10 p-3 border-l-4 border-bc-gold rounded my-3 text-sm text-white/80 flex items-center gap-2">
+              <strong>Box:</strong> <BoxDots letter={item.location} colors={colors} />
+            </div>
+          );
+        })()}
         {item.notes && (
           <p className="mb-2 text-sm text-white/80">
             <strong>Notes:</strong> {item.notes}

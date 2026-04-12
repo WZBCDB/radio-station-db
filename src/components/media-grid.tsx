@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Media, Role } from "@/lib/types";
+import type { Media, Role, Box } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import MediaCard from "@/components/media-card";
@@ -11,9 +11,10 @@ interface MediaGridProps {
   media: Media[];
   role: Role;
   onEdit: (item: Media) => void;
+  boxes: Box[];
 }
 
-export default function MediaGrid({ media, role, onEdit }: MediaGridProps) {
+export default function MediaGrid({ media, role, onEdit, boxes }: MediaGridProps) {
   const [viewing, setViewing] = useState<Media | null>(null);
   const router = useRouter();
   const supabase = createClient();
@@ -62,11 +63,12 @@ export default function MediaGrid({ media, role, onEdit }: MediaGridProps) {
             onView={setViewing}
             onEdit={onEdit}
             onDelete={handleDelete}
+            boxes={boxes}
           />
         ))}
       </div>
       {viewing && (
-        <DetailModal item={viewing} onClose={() => setViewing(null)} />
+        <DetailModal item={viewing} onClose={() => setViewing(null)} boxes={boxes} />
       )}
     </>
   );

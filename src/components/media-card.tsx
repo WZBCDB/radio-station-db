@@ -1,8 +1,9 @@
 "use client";
 
-import type { Media } from "@/lib/types";
+import type { Media, Box } from "@/lib/types";
 import BoxDots from "@/components/box-dots";
 import GenreTag from "@/components/genre-tag";
+import { boxToColors } from "@/lib/box-colors";
 
 const TYPE_LABELS: Record<string, string> = {
   vinyl: "Vinyl",
@@ -16,6 +17,7 @@ interface MediaCardProps {
   onView: (item: Media) => void;
   onEdit: (item: Media) => void;
   onDelete: (id: string) => void;
+  boxes: Box[];
 }
 
 export default function MediaCard({
@@ -24,6 +26,7 @@ export default function MediaCard({
   onView,
   onEdit,
   onDelete,
+  boxes,
 }: MediaCardProps) {
   const cover = item.photos?.find((p) => p.photo_type === "cover");
 
@@ -51,11 +54,15 @@ export default function MediaCard({
           {item.title}
         </div>
         <div className="text-white/70 text-sm mb-1">{item.artist}</div>
-        {item.location && (
-          <div className="mb-1">
-            <BoxDots letter={item.location} size="sm" />
-          </div>
-        )}
+        {item.location && (() => {
+          const box = boxes.find((b) => b.name === item.location);
+          const colors = box ? boxToColors(box).map((c) => ({ name: c.name, hex: c.hex })) : undefined;
+          return (
+            <div className="mb-1">
+              <BoxDots letter={item.location} size="sm" colors={colors} />
+            </div>
+          );
+        })()}
         {item.label && (
           <div className="text-white/50 text-xs mb-2">{item.label}</div>
         )}

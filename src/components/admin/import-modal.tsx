@@ -139,7 +139,9 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
       const raw = row[header]?.toString().trim() ?? "";
       const val = cleanValue(raw);
       if (field === "year") {
-        const num = parseInt(val);
+        // Ignore stray leading/trailing punctuation (e.g. "-1989" from template placeholders)
+        const digits = val.match(/\d{4}/)?.[0];
+        const num = digits ? parseInt(digits) : NaN;
         mapped.year = !isNaN(num) && num >= 1900 && num <= 2099 ? num : null;
       } else if (field === "genres") {
         mapped.genres = val

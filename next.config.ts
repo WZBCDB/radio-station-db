@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
           value: [
             "default-src 'self'",
             `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL} https://*.supabase.co`,
-            `img-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL} https://*.supabase.co blob: data:`,
+            `img-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL} https://*.supabase.co ${process.env.NEXT_PUBLIC_PHOTO_BASE_URL ?? ""} blob: data:`,
             "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
             "style-src 'self' 'unsafe-inline'",
             "frame-ancestors 'none'",

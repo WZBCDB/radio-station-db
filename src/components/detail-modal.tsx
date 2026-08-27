@@ -80,7 +80,7 @@ export default function DetailModal({ item, onClose, boxes }: DetailModalProps) 
         )}
         {item.source_row && (
           <div className="mb-2 text-sm text-white/80 flex items-center gap-2">
-            <strong>Spreadsheet Row:</strong>
+            <strong>Record #:</strong>
             <span className="bg-white/20 text-white/70 px-2.5 py-0.5 rounded-full text-xs font-semibold">
               #{item.source_row}
             </span>

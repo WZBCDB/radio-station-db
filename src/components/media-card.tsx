@@ -76,7 +76,7 @@ export default function MediaCard({
         {item.source_row && (
           <div className="mb-3">
             <span className="bg-white/20 text-white/70 px-2 py-0.5 rounded-full text-xs font-semibold">
-              Sheet #{item.source_row}
+              Record #{item.source_row}
             </span>
           </div>
         )}

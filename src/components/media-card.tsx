@@ -4,6 +4,7 @@ import type { Media, Box } from "@/lib/types";
 import BoxDots from "@/components/box-dots";
 import GenreTag from "@/components/genre-tag";
 import { boxToColors } from "@/lib/box-colors";
+import { getPhotoUrl, swapJpgJpeg } from "@/lib/photo-url";
 
 const TYPE_LABELS: Record<string, string> = {
   vinyl: "Vinyl",
@@ -29,17 +30,32 @@ export default function MediaCard({
   boxes,
 }: MediaCardProps) {
   const cover = item.photos?.find((p) => p.photo_type === "cover");
+  const photoUrl = cover?.url ?? getPhotoUrl(item.photo_filename);
 
   return (
     <div
       onClick={() => onView(item)}
       className="glass rounded-xl overflow-hidden hover:-translate-y-1 hover:shadow-xl transition cursor-pointer"
     >
-      {cover ? (
+      {photoUrl ? (
         <img
-          src={cover.url}
+          src={photoUrl}
           alt={item.title}
           className="w-full h-56 object-cover"
+          onError={(e) => {
+            const img = e.currentTarget;
+            if (img.dataset.fallbackTried) {
+              img.style.display = "none";
+              return;
+            }
+            const alt = swapJpgJpeg(img.src);
+            if (alt) {
+              img.dataset.fallbackTried = "1";
+              img.src = alt;
+            } else {
+              img.style.display = "none";
+            }
+          }}
         />
       ) : (
         <div className="w-full h-56 bg-gradient-to-br from-bc-maroon to-bc-maroon-dark flex items-center justify-center text-5xl">

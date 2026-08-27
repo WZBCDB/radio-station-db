@@ -26,6 +26,7 @@ export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
   const [location, setLocation] = useState("");
   const [condition, setCondition] = useState<Condition | "">("");
   const [notes, setNotes] = useState("");
+  const [photoFilename, setPhotoFilename] = useState("");
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -44,6 +45,7 @@ export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
       setLocation(editing.location ?? "");
       setCondition(editing.condition ?? "");
       setNotes(editing.notes ?? "");
+      setPhotoFilename(editing.photo_filename ?? "");
       setPhotos([]);
     }
   }, [editing]);
@@ -58,6 +60,7 @@ export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
     setLocation("");
     setCondition("");
     setNotes("");
+    setPhotoFilename("");
     setPhotos([]);
     onDone();
   }
@@ -86,6 +89,7 @@ export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
         location: location.trim() || null,
         condition: condition || null,
         notes: notes.trim() || null,
+        photo_filename: photoFilename.trim() || null,
         created_by: user.id,
       };
 
@@ -312,6 +316,19 @@ export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
         </div>
 
         <PhotoUpload photos={photos} onChange={setPhotos} />
+
+        <div className="mb-4">
+          <label className="block mb-1.5 text-sm font-semibold text-white/80">
+            Hard Drive Photo Filename
+          </label>
+          <input
+            type="text"
+            value={photoFilename}
+            onChange={(e) => setPhotoFilename(e.target.value)}
+            placeholder="e.g. IMG_8302.jpeg"
+            className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-2.5 mt-6">
           <button

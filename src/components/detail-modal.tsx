@@ -6,6 +6,7 @@ import BoxDots from "@/components/box-dots";
 import GenreTag from "@/components/genre-tag";
 import { createClient } from "@/lib/supabase/client";
 import { boxToColors } from "@/lib/box-colors";
+import { getPhotoUrl, swapJpgJpeg } from "@/lib/photo-url";
 
 const TYPE_LABELS: Record<string, string> = {
   vinyl: "Vinyl Record",
@@ -24,6 +25,8 @@ export default function DetailModal({ item, onClose, boxes }: DetailModalProps) 
     const supabase = createClient();
     supabase.rpc("increment_view_count", { row_id: item.id });
   }, [item.id]);
+
+  const externalPhotoUrl = getPhotoUrl(item.photo_filename);
 
   return (
     <div
@@ -101,12 +104,35 @@ export default function DetailModal({ item, onClose, boxes }: DetailModalProps) 
           </p>
         )}
 
-        {item.photos?.length > 0 && (
+        {(item.photos?.length > 0 || externalPhotoUrl) && (
           <>
             <h3 className="text-base font-bold text-white mt-5 mb-3">
               Photos
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {externalPhotoUrl && (
+                <div className="relative rounded-lg overflow-hidden">
+                  <img
+                    src={externalPhotoUrl}
+                    alt={item.title}
+                    className="w-full h-36 object-cover"
+                    onError={(e) => {
+                      const img = e.currentTarget;
+                      if (img.dataset.fallbackTried) {
+                        img.style.display = "none";
+                        return;
+                      }
+                      const alt = swapJpgJpeg(img.src);
+                      if (alt) {
+                        img.dataset.fallbackTried = "1";
+                        img.src = alt;
+                      } else {
+                        img.style.display = "none";
+                      }
+                    }}
+                  />
+                </div>
+              )}
               {item.photos.map((p) => (
                 <div key={p.id} className="relative rounded-lg overflow-hidden">
                   <img

@@ -63,6 +63,7 @@ export interface Media {
   notes: string | null;
   date_added: string;
   source_row: number | null;
+  photo_filename: string | null;
   photos: MediaPhoto[];
   profile?: Pick<Profile, "display_name">;
 }

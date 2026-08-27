@@ -17,6 +17,7 @@ const TARGET_FIELDS = [
   "genres",
   "condition",
   "notes",
+  "photo_filename",
 ] as const;
 
 type TargetField = (typeof TARGET_FIELDS)[number];
@@ -64,6 +65,11 @@ const COLUMN_ALIASES: Record<string, TargetField> = {
   "mediatype": "media_type",
   "media type": "media_type",
   "type": "media_type",
+  "photos": "photo_filename",
+  "photo": "photo_filename",
+  "img": "photo_filename",
+  "imgnumber": "photo_filename",
+  "img number": "photo_filename",
 };
 
 interface ImportModalProps {
@@ -79,6 +85,7 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
   const [mapping, setMapping] = useState<ColumnMapping>({});
   const [defaultMediaType, setDefaultMediaType] = useState<string>("vinyl");
   const [boxLetter, setBoxLetter] = useState<string>("");
+  const [noHeaderRow, setNoHeaderRow] = useState(false);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{ imported: number; skipped: number } | null>(null);
   const router = useRouter();
@@ -91,7 +98,11 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
       const data = new Uint8Array(e.target?.result as ArrayBuffer);
       const wb = XLSX.read(data, { type: "array" });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const json: Record<string, string>[] = XLSX.utils.sheet_to_json(ws, { defval: "" });
+      const json: Record<string, string>[] = noHeaderRow
+        ? XLSX.utils
+            .sheet_to_json<string[]>(ws, { header: 1, defval: "" })
+            .map((row) => Object.fromEntries(row.map((v, i) => [`Column ${i + 1}`, v])))
+        : XLSX.utils.sheet_to_json(ws, { defval: "" });
       if (json.length === 0) return;
 
       const hdrs = Object.keys(json[0]);
@@ -105,7 +116,7 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
       });
       setRows(filtered);
 
-      // Auto-map columns by name using aliases
+      // Auto-map columns by name using aliases (skipped for headerless sheets — map manually below)
       const autoMap: ColumnMapping = {};
       hdrs.forEach((h) => {
         const lower = h.toLowerCase().trim();
@@ -126,6 +137,7 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
     };
     reader.readAsArrayBuffer(file);
   }
+
 
   function cleanValue(val: string): string {
     // Strip surrounding quotes (the WZBC CSV has literal "example" values)
@@ -291,6 +303,16 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
                 ) : null;
               })()}
             </div>
+
+            {/* No-header-row toggle — some box sheets start directly with data */}
+            <label className="flex items-center gap-2 mb-4 text-sm text-white/70">
+              <input
+                type="checkbox"
+                checked={noHeaderRow}
+                onChange={(e) => setNoHeaderRow(e.target.checked)}
+              />
+              This sheet has no header row (row 1 is already data)
+            </label>
 
             {/* File upload — only enabled after box is selected */}
             {boxLetter ? (

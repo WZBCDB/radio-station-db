@@ -191,6 +191,17 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
     return true;
   }
 
+  // Human-readable reason a row failed validation, so it's findable outside the 10-row preview
+  function invalidReason(mapped: Record<string, unknown> | null): string | null {
+    if (!mapped) return "Could not read row";
+    if (!mapped.media_type || !VALID_MEDIA_TYPES.includes(mapped.media_type as string)) {
+      return `Invalid media type ("${mapped.media_type ?? "empty"}")`;
+    }
+    if (!mapped.title || (mapped.title as string).trim() === "") return "Missing title";
+    if (!mapped.artist || (mapped.artist as string).trim() === "") return "Missing artist";
+    return null;
+  }
+
   async function handleImport() {
     setImporting(true);
     const {
@@ -240,6 +251,9 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
     const m = mapRow(r);
     return m && isValid(m);
   }).length;
+  const invalidRows = rows
+    .map((row, i) => ({ rowNumber: i + 2, reason: invalidReason(mapRow(row)) }))
+    .filter((r) => r.reason);
 
   return (
     <div onClick={onClose} className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
@@ -426,6 +440,19 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
                 </tbody>
               </table>
             </div>
+
+            {invalidRows.length > 0 && (
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-400/30 rounded-md">
+                <h4 className="text-red-300 text-sm font-semibold mb-1">
+                  {invalidRows.length} invalid row{invalidRows.length > 1 ? "s" : ""} (won&apos;t be imported)
+                </h4>
+                <ul className="text-red-300/90 text-xs space-y-0.5">
+                  {invalidRows.map(({ rowNumber, reason }) => (
+                    <li key={rowNumber}>Spreadsheet row {rowNumber}: {reason}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="flex items-center gap-3">
               <button

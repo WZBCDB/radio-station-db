@@ -202,17 +202,15 @@ export default function SearchFilters({
   }
 
   // Genre search/display uses each genre's description (e.g. "Rock") instead of its raw stored tag (e.g. "-6")
-  const genreDescToName: Record<string, string> = {};
   const genreNameToDesc: Record<string, string> = {};
   allGenres.forEach((g) => {
     const label = g.description || g.name;
-    genreDescToName[label] = g.name;
     genreNameToDesc[g.name] = label;
   });
-  const genreOptions = [...new Set(Object.keys(genreDescToName))].sort();
+  const genreOptions = [...new Set(allGenres.map((g) => g.description || g.name))].sort();
 
   function handleGenreCommit(_key: string, display: string) {
-    updateParam("genre", genreDescToName[display] ?? display);
+    updateParam("genre", display);
   }
 
   const currentBox = searchParams.get("box") ?? "";

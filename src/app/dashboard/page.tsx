@@ -36,7 +36,17 @@ async function getMedia(filters: {
     query = query.eq("media_type", filters.type);
   }
   if (filters.genre) {
-    query = query.contains("genres", [filters.genre]);
+    const [{ data: describedGenres }, { data: namedGenres }] = await Promise.all([
+      supabase.from("genres").select("name").ilike("description", filters.genre),
+      supabase.from("genres").select("name").eq("name", filters.genre),
+    ]);
+    const genreNames = [
+      ...(describedGenres ?? []).map((genre) => genre.name),
+      ...(namedGenres ?? []).map((genre) => genre.name),
+    ];
+    query = genreNames.length
+      ? query.overlaps("genres", [...new Set(genreNames)])
+      : query.contains("genres", [filters.genre]);
   }
   if (filters.q) {
     // Escape PostgREST special characters to prevent filter injection
@@ -169,7 +179,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="glass p-5 rounded-xl text-center animate-pulse h-24"
+                className="bg-bc-gold p-5 rounded-xl text-center animate-pulse h-24"
               />
             ))}
           </div>

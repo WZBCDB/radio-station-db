@@ -156,8 +156,14 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
         const num = digits ? parseInt(digits) : NaN;
         mapped.year = !isNaN(num) && num >= 1900 && num <= 2099 ? num : null;
       } else if (field === "genres") {
+        // Sheets often list multiple genre codes space-separated in one cell (e.g. "-X -6"),
+        // and sometimes concatenated with no separator at all (e.g. "-X6" = NCP + Rock)
         mapped.genres = val
-          ? val.split(/[,;]/).map((g) => cleanValue(g)).filter(Boolean)
+          ? val
+              .split(/[,;\s]+/)
+              .flatMap((g) => (/^-x6$/i.test(g.trim()) ? ["-X", "-6"] : [g]))
+              .map((g) => cleanValue(g))
+              .filter(Boolean)
           : [];
       } else if (field === "media_type") {
         mapped.media_type = VALID_MEDIA_TYPES.includes(val.toLowerCase())

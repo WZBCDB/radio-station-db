@@ -156,7 +156,7 @@ export default function SearchFilters({
   allYears,
   allLabels,
 }: {
-  allGenres: string[];
+  allGenres: { name: string; description: string }[];
   boxes: Box[];
   allYears: number[];
   allLabels: string[];
@@ -201,9 +201,24 @@ export default function SearchFilters({
     updateParam("condition", VALUE_TO_CONDITION[display] ?? "");
   }
 
+  // Genre search/display uses each genre's description (e.g. "Rock") instead of its raw stored tag (e.g. "-6")
+  const genreDescToName: Record<string, string> = {};
+  const genreNameToDesc: Record<string, string> = {};
+  allGenres.forEach((g) => {
+    const label = g.description || g.name;
+    genreDescToName[label] = g.name;
+    genreNameToDesc[g.name] = label;
+  });
+  const genreOptions = [...new Set(Object.keys(genreDescToName))].sort();
+
+  function handleGenreCommit(_key: string, display: string) {
+    updateParam("genre", genreDescToName[display] ?? display);
+  }
+
   const currentBox = searchParams.get("box") ?? "";
   const currentType = searchParams.get("type") ?? "";
   const currentCondition = searchParams.get("condition") ?? "";
+  const currentGenre = searchParams.get("genre") ?? "";
 
   return (
     <div className="glass rounded-xl p-4 mb-6">
@@ -230,9 +245,9 @@ export default function SearchFilters({
         <Combobox
           placeholder="Genre..."
           paramKey="genre"
-          options={allGenres}
-          value={searchParams.get("genre") ?? ""}
-          onCommit={updateParam}
+          options={genreOptions}
+          value={genreNameToDesc[currentGenre] ?? currentGenre}
+          onCommit={handleGenreCommit}
         />
 
         {/* Year */}

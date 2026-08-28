@@ -82,18 +82,17 @@ async function getMedia(filters: {
   }));
 }
 
-async function getAllGenres(): Promise<string[]> {
+async function getAllGenres(): Promise<{ name: string; description: string }[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("media").select("genres");
+  const { data, error } = await supabase
+    .from("genres")
+    .select("name, description")
+    .order("name");
   if (error) {
     console.error("Error fetching genres:", error);
     return [];
   }
-  const genreSet = new Set<string>();
-  (data ?? []).forEach((row) =>
-    (row.genres ?? []).forEach((g: string) => genreSet.add(g))
-  );
-  return [...genreSet].sort();
+  return data ?? [];
 }
 
 async function getYears(): Promise<number[]> {

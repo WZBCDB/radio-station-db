@@ -50,13 +50,10 @@ export default function GenreTag({
   return (
     <span
       className={`relative inline-flex items-center gap-1 bg-white/15 text-bc-gold-light px-2 py-0.5 rounded-full text-xs font-semibold ${className}`}
-      onMouseEnter={() => desc && setShowTooltip(true)}
+      onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      {name}
-      {desc && (
-        <span className="text-white/40 text-[10px]">ⓘ</span>
-      )}
+      {desc || name}
       {removable && onRemove && (
         <span
           className="cursor-pointer font-bold opacity-80 hover:opacity-100"
@@ -70,7 +67,7 @@ export default function GenreTag({
       )}
       {showTooltip && desc && (
         <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-md shadow-lg z-50 max-w-[250px] whitespace-normal text-center">
-          {desc}
+          {name}
           <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
         </span>
       )}

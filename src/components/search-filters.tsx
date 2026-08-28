@@ -230,6 +230,15 @@ export default function SearchFilters({
           onCommit={updateParam}
         />
 
+        {/* Comments search */}
+        <Combobox
+          placeholder="Search comments..."
+          paramKey="comments"
+          options={[]}
+          value={searchParams.get("comments") ?? ""}
+          onCommit={updateParam}
+        />
+
         {/* Media type */}
         <Combobox
           placeholder="Media type..."

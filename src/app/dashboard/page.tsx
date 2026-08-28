@@ -10,6 +10,7 @@ interface DashboardProps {
     q?: string;
     type?: string;
     genre?: string;
+    comments?: string;
     box?: string;
     year?: string;
     condition?: string;
@@ -21,6 +22,7 @@ async function getMedia(filters: {
   q?: string;
   type?: string;
   genre?: string;
+  comments?: string;
   box?: string;
   year?: string;
   condition?: string;
@@ -54,6 +56,10 @@ async function getMedia(filters: {
     query = query.or(
       `title.ilike.%${escaped}%,artist.ilike.%${escaped}%`
     );
+  }
+  if (filters.comments) {
+    const escaped = filters.comments.replace(/[%,._\\]/g, (c) => `\\${c}`);
+    query = query.ilike("notes", `%${escaped}%`);
   }
   if (filters.box) {
     query = query.eq("location", filters.box);

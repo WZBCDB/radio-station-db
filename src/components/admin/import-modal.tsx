@@ -222,7 +222,8 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
           created_by: user.id,
           genres: mapped.genres ?? [],
           location: boxLetter || null,
-          source_row: idx + 2, // +2: row 1 is header, data starts at row 2
+          // Row numbering matches the source spreadsheet: +2 when row 1 is a header (data starts row 2), +1 when row 1 is already data
+          source_row: noHeaderRow ? idx + 1 : idx + 2,
         });
       } else {
         skipped++;
@@ -252,7 +253,7 @@ export default function ImportModal({ onClose, boxes }: ImportModalProps) {
     return m && isValid(m);
   }).length;
   const invalidRows = rows
-    .map((row, i) => ({ rowNumber: i + 2, reason: invalidReason(mapRow(row)) }))
+    .map((row, i) => ({ rowNumber: noHeaderRow ? i + 1 : i + 2, reason: invalidReason(mapRow(row)) }))
     .filter((r) => r.reason);
 
   return (

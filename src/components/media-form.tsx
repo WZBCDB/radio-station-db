@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import type { Media, MediaType, Condition, Box } from "@/lib/types";
+import type { Media, MediaType, Condition, Box, Role } from "@/lib/types";
 import PhotoUpload, { type PendingPhoto } from "@/components/photo-upload";
 import { boxToColors } from "@/lib/box-colors";
 import BoxDots from "@/components/box-dots";
@@ -14,9 +14,10 @@ interface MediaFormProps {
   editing: Media | null;
   onDone: () => void;
   boxes: Box[];
+  role: Role;
 }
 
-export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
+export default function MediaForm({ editing, onDone, boxes, role }: MediaFormProps) {
   const [mediaType, setMediaType] = useState<MediaType | "">("");
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
@@ -26,6 +27,7 @@ export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
   const [location, setLocation] = useState("");
   const [condition, setCondition] = useState<Condition | "">("");
   const [notes, setNotes] = useState("");
+  const [sourceRow, setSourceRow] = useState("");
   const [photoFilename, setPhotoFilename] = useState("");
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
   const [saving, setSaving] = useState(false);
@@ -45,6 +47,7 @@ export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
       setLocation(editing.location ?? "");
       setCondition(editing.condition ?? "");
       setNotes(editing.notes ?? "");
+      setSourceRow(editing.source_row?.toString() ?? "");
       setPhotoFilename(editing.photo_filename ?? "");
       setPhotos([]);
     }
@@ -60,6 +63,7 @@ export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
     setLocation("");
     setCondition("");
     setNotes("");
+    setSourceRow("");
     setPhotoFilename("");
     setPhotos([]);
     onDone();
@@ -89,6 +93,7 @@ export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
         location: location.trim() || null,
         condition: condition || null,
         notes: notes.trim() || null,
+        source_row: role === "admin" && sourceRow ? Number(sourceRow) : editing?.source_row ?? null,
         photo_filename: photoFilename.trim() || null,
         created_by: user.id,
       };
@@ -232,6 +237,23 @@ export default function MediaForm({ editing, onDone, boxes }: MediaFormProps) {
             className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
           />
         </div>
+
+        {role === "admin" && (
+          <div className="mb-4">
+            <label className="block mb-1.5 text-sm font-semibold text-white/80">
+              Record Number
+            </label>
+            <input
+              type="number"
+              value={sourceRow}
+              onChange={(e) => setSourceRow(e.target.value)}
+              placeholder="e.g. 125"
+              min="1"
+              step="1"
+              className="w-full p-2.5 bg-white/90 border-2 border-white/30 rounded-md text-sm text-gray-900 focus:outline-none focus:border-bc-gold"
+            />
+          </div>
+        )}
 
         <div className="mb-4">
           <label className="block mb-1.5 text-sm font-semibold text-white/80">

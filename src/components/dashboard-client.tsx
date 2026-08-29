@@ -25,6 +25,7 @@ export default function DashboardClient({
           editing={editing}
           onDone={() => setEditing(null)}
           boxes={boxes}
+          role={role}
         />
       </div>
       <MediaGrid media={media} role={role} onEdit={setEditing} boxes={boxes} />

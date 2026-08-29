@@ -96,17 +96,17 @@ export default function MediaCard({
             </span>
           </div>
         )}
-        <div className="flex gap-2">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(item);
-            }}
-            className="flex-1 py-2 text-xs bg-bc-maroon text-white rounded font-semibold hover:bg-bc-maroon-dark transition"
-          >
-            Edit
-          </button>
-          {isAdmin && (
+        {isAdmin && (
+          <div className="flex gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(item);
+              }}
+              className="flex-1 py-2 text-xs bg-bc-maroon text-white rounded font-semibold hover:bg-bc-maroon-dark transition"
+            >
+              Edit
+            </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -116,8 +116,8 @@ export default function MediaCard({
             >
               Delete
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

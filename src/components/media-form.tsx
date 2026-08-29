@@ -160,7 +160,7 @@ export default function MediaForm({ editing, onDone, boxes, role }: MediaFormPro
 
   return (
     <>
-      <h2 className="text-bc-maroon-deep text-xl font-bold mb-5">
+      <h2 className="text-bc-gold text-xl font-bold mb-5">
         {editing ? "Edit Item" : "Add New Item"}
       </h2>
 

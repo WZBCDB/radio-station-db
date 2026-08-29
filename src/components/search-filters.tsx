@@ -259,7 +259,7 @@ export default function SearchFilters({
 
         {/* Year */}
         <Combobox
-          placeholder="Year..."
+          placeholder="Year or range (1970-1979)..."
           paramKey="year"
           options={allYears.map(String)}
           value={searchParams.get("year") ?? ""}

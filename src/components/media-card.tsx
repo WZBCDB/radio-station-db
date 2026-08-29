@@ -29,8 +29,8 @@ export default function MediaCard({
   onDelete,
   boxes,
 }: MediaCardProps) {
-  const cover = item.photos?.find((p) => p.photo_type === "cover");
-  const photoUrl = cover?.url ?? getPhotoUrl(item.photo_filename);
+  const cover = item.photos?.find((p) => p.photo_type === "cover") ?? item.photos?.[0];
+  const photoUrl = getPhotoUrl(item.photo_filename) ?? cover?.url;
 
   return (
     <div

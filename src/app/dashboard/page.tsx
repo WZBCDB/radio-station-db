@@ -65,9 +65,14 @@ async function getMedia(filters: {
     query = query.eq("location", filters.box);
   }
   if (filters.year) {
-    const num = parseInt(filters.year);
-    if (!isNaN(num)) {
-      query = query.eq("year", num);
+    const yearFilter = filters.year.trim();
+    const rangeMatch = yearFilter.match(/^(\d{4})\s*-\s*(\d{4})$/);
+    if (rangeMatch) {
+      const startYear = Number(rangeMatch[1]);
+      const endYear = Number(rangeMatch[2]);
+      query = query.gte("year", Math.min(startYear, endYear)).lte("year", Math.max(startYear, endYear));
+    } else if (/^\d{4}$/.test(yearFilter)) {
+      query = query.eq("year", Number(yearFilter));
     }
   }
   if (filters.condition) {

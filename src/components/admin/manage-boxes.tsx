@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import type { Box } from "@/lib/types";
@@ -30,21 +30,33 @@ export default function ManageBoxes({ onClose }: ManageBoxesProps) {
   const [boxes, setBoxes] = useState<Box[]>([]);
   const [newName, setNewName] = useState("");
   const [newColors, setNewColors] = useState<[number, number, number]>([0, 1, 2]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
   const [saving, setSaving] = useState(false);
-  const supabase = createClient();
+  const [supabase] = useState(() => createClient());
   const router = useRouter();
 
-  useEffect(() => {
-    loadBoxes();
-  }, []);
-
-  async function loadBoxes() {
+  const loadBoxes = useCallback(async () => {
     const { data } = await supabase
       .from("boxes")
       .select("*")
       .order("sort_order");
     setBoxes(data ?? []);
-  }
+  }, [supabase]);
+
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from("boxes")
+      .select("*")
+      .order("sort_order")
+      .then(({ data }) => {
+        if (active) setBoxes(data ?? []);
+      });
+    return () => {
+      active = false;
+    };
+  }, [supabase]);
 
   async function handleAdd() {
     if (!newName.trim()) return;
@@ -80,6 +92,56 @@ export default function ManageBoxes({ onClose }: ManageBoxesProps) {
     router.refresh();
   }
 
+  function startEditing(box: Box) {
+    setEditingId(box.id);
+    setEditingName(box.name);
+  }
+
+  function cancelEditing() {
+    setEditingId(null);
+    setEditingName("");
+  }
+
+  async function handleRename(box: Box) {
+    const name = editingName.trim().toUpperCase();
+    if (!name || name === box.name) {
+      cancelEditing();
+      return;
+    }
+
+    setSaving(true);
+    const { error: mediaError } = await supabase
+      .from("media")
+      .update({ location: name })
+      .eq("location", box.name);
+
+    if (mediaError) {
+      alert(mediaError.message);
+      setSaving(false);
+      return;
+    }
+
+    const { error: boxError } = await supabase
+      .from("boxes")
+      .update({ name })
+      .eq("id", box.id);
+
+    if (boxError) {
+      await supabase
+        .from("media")
+        .update({ location: box.name })
+        .eq("location", name);
+      alert(boxError.message.includes("unique")
+        ? "A box with that name already exists."
+        : boxError.message);
+    } else {
+      cancelEditing();
+      await loadBoxes();
+      router.refresh();
+    }
+    setSaving(false);
+  }
+
   return (
     <div onClick={onClose} className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
       <div onClick={(e) => e.stopPropagation()} className="glass-bright p-7 rounded-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -96,6 +158,7 @@ export default function ManageBoxes({ onClose }: ManageBoxesProps) {
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
+              maxLength={100}
               placeholder="Box name (e.g. Y, Z, AA)"
               className="flex-1 p-2 bg-white/90 border border-white/30 rounded text-sm text-gray-900"
             />
@@ -144,13 +207,54 @@ export default function ManageBoxes({ onClose }: ManageBoxesProps) {
         <div className="space-y-2">
           {boxes.map((b) => (
             <div key={b.id} className="glass rounded-lg p-3 flex items-center justify-between">
-              <BoxDots letter={b.name} colors={boxToColors(b)} />
+              {editingId === b.id ? (
+                <input
+                  type="text"
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleRename(b);
+                    if (e.key === "Escape") cancelEditing();
+                  }}
+                  maxLength={100}
+                  autoFocus
+                  className="w-32 p-2 bg-white/90 border border-white/30 rounded text-sm text-gray-900"
+                />
+              ) : (
+                <BoxDots letter={b.name} colors={boxToColors(b)} />
+              )}
               <div className="flex items-center gap-2">
                 <span className="text-white/50 text-xs">
                   {boxToColors(b).map((c) => c.name).join(", ")}
                 </span>
+                {editingId === b.id ? (
+                  <>
+                    <button
+                      onClick={() => handleRename(b)}
+                      disabled={saving || !editingName.trim()}
+                      className="text-bc-gold hover:text-bc-gold-light text-xs ml-2 disabled:opacity-50"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={cancelEditing}
+                      disabled={saving}
+                      className="text-white/50 hover:text-white text-xs disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => startEditing(b)}
+                    className="text-bc-gold hover:text-bc-gold-light text-xs ml-2"
+                  >
+                    Edit
+                  </button>
+                )}
                 <button
                   onClick={() => handleDelete(b.id, b.name)}
+                  disabled={saving}
                   className="text-red-400 hover:text-red-300 text-xs ml-2"
                 >
                   Delete
